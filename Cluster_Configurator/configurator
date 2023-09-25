@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+import subprocess
+import sys
+import os
+import shutil
+from datetime import datetime
+
+LOG_CONDOR_STATUS_FILE_NAME = 'log_condor_status'
+LOG_CONFIGURATOR_FILE_NAME = 'log_configurator'
+masterIp = '192.168.5.10'
+user = 'mehul'
+
+def printHelp():
+    script_name = os.path.basename(__file__)
+    print(f"Usage: ./{script_name} [options] <IP or hostname>")
+    print("Options:")
+    print("  -h, -help        Show this help message and exit.")
+    print("  -d, -delete      Delete all generated files.")
+    print("  -D               Delete all backup folders.")
+    sys.exit(0)
+
+def createBackupFolder():
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    backup_folder = f'backup_{timestamp}'
+    os.makedirs(backup_folder)
+    return backup_folder
+
+def backupFiles():
+    backup_folder = createBackupFolder()
+    if os.path.exists(LOG_CONFIGURATOR_FILE_NAME):
+        shutil.move(LOG_CONFIGURATOR_FILE_NAME, os.path.join(backup_folder, 'log_bk'))
+    if os.path.exists(LOG_CONDOR_STATUS_FILE_NAME):
+        shutil.move(LOG_CONDOR_STATUS_FILE_NAME, os.path.join(backup_folder, 'status_bk'))
+
+def deleteGeneratedFiles():
+    if os.path.exists(LOG_CONFIGURATOR_FILE_NAME):
+        os.remove(LOG_CONFIGURATOR_FILE_NAME)
+    if os.path.exists(LOG_CONDOR_STATUS_FILE_NAME):
+        os.remove(LOG_CONDOR_STATUS_FILE_NAME)
+    print("Generated files deleted.")
+    sys.exit(0)
+
+def deleteAllBackupFolders():
+    backup_folders = [folder for folder in os.listdir() if folder.startswith('backup_') and os.path.isdir(folder)]
+    for folder in backup_folders:
+        shutil.rmtree(folder)
+
+def runSshCommand(command, command_name):
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    returncode = process.returncode
+    stdout_str = stdout.decode('utf-8')
+    stderr_str = stderr.decode('utf-8')
+
+    log = f"{command_name} - Return Code: {returncode}\n" \
+          f"Log: {stdout_str}\n" \
+          f"Error: {stderr_str}\n" \
+          f"....\n"
+
+    with open(LOG_CONFIGURATOR_FILE_NAME, 'a') as f:
+        f.write(log)
+    
+    print(f"Command '{command_name}' executed. Log file generated.\n")
+
+def getCondorStatus(masterIp, user):
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    output_file = os.path.join(current_dir, LOG_CONDOR_STATUS_FILE_NAME)
+    command = f"ssh -t {user}@{masterIp} 'condor_status -master -format \"%s\\n\" MasterIpAddr > {output_file}'"
+    runSshCommand(command, "getCondorStatus")
+
+def killCondorDaemon(user, target):
+    command = f"ssh -t {user}@{target} 'pgrep condor_master | xargs kill'"
+    runSshCommand(command, "killCondorDaemon")
+
+if __name__ == "__main__":
+    if os.path.exists(LOG_CONFIGURATOR_FILE_NAME) or os.path.exists(LOG_CONDOR_STATUS_FILE_NAME):
+        backupFiles()
+
+    if len(sys.argv) < 2:
+        printHelp()
+
+    if sys.argv[1] == '-h' or sys.argv[1] == '-help':
+        printHelp()
+    elif sys.argv[1] == '-d' or sys.argv[1] == '-delete':
+        deleteGeneratedFiles()
+    elif sys.argv[1] == '-D':
+        deleteAllBackupFolders()
+    else:
+        target = sys.argv[1]
+        killCondorDaemon(user, target)
+        getCondorStatus(masterIp, user)
