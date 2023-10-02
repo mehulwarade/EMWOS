@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in {0..999}
+do
+  curl -X POST -H "Content-Type: application/json" -d '{"value":'$i'}' http://localhost:8443
+done
