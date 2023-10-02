@@ -2,5 +2,9 @@
 
 for i in {0..999}
 do
-  curl -X POST -H "Content-Type: application/json" -d '{"value":'$i'}' http://localhost:8443
+  timestamp=$(date +%s%3N) # Get current time in milliseconds
+  random_float=$(LC_NUMERIC="en_US.UTF-8" printf "%.4f" "$(bc -l <<< "scale=4; $RANDOM/32768")")
+  # curl -X POST -H "Content-Type: application/json" -d '{"timestamp":'$timestamp', "value":'$random_float'}' http://192.168.5.2:8443
+  curl -X POST -H "Content-Type: application/json" -d '{"value":'$random_float'}' http://192.168.5.2:8443
+  sleep 0.5
 done

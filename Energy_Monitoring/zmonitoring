@@ -5,6 +5,7 @@ import mysql.connector
 import argparse
 import logging
 import time
+import socket
 
 # Initialize logging
 logging.basicConfig(filename='monitoring.log', level=logging.INFO, format='%(asctime)s [%(levelname)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
@@ -37,16 +38,38 @@ mysql_config = {
     "table_name": args.table
 }
 
+# Define a cache to store host names
+host_cache = {}
+
+def get_host_from_ip(ip):
+    if ip in host_cache:
+        return host_cache[ip]
+    
+    try:
+        host = socket.gethostbyaddr(ip)[0]
+        host_cache[ip] = host
+        return host
+    except socket.herror:
+        modified_ip = ip.replace('.', '_') # error handling
+        host_cache[ip] = modified_ip
+        return modified_ip
+
 def create_database(cursor):
     cursor.execute(f"CREATE DATABASE IF NOT EXISTS {mysql_config['db_name']}")
 
 def create_table(cursor):
     cursor.execute(f"USE {mysql_config['db_name']}")
-    cursor.execute(f"CREATE TABLE IF NOT EXISTS {mysql_config['table_name']} (id INT AUTO_INCREMENT PRIMARY KEY, value INT)")
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS {mysql_config['table_name']} (id INT AUTO_INCREMENT PRIMARY KEY, timestamp BIGINT)")
 
-def insert_data(cursor, value):
+def insert_data(cursor, hostname, value, timestamp):
     cursor.execute(f"USE {mysql_config['db_name']}")
-    cursor.execute(f"INSERT INTO {mysql_config['table_name']} (value) VALUES ({value})")
+    cursor.execute(f"INSERT INTO {mysql_config['table_name']} (timestamp, {hostname}) VALUES (%s, %s)", (timestamp, value))
+
+def check_and_create_column(cursor, hostname):
+    cursor.execute(f"USE {mysql_config['db_name']}")
+    cursor.execute(f"SHOW COLUMNS FROM {mysql_config['table_name']} LIKE %s", (hostname,))
+    if not cursor.fetchone():
+        cursor.execute(f"ALTER TABLE {mysql_config['table_name']} ADD COLUMN {hostname} FLOAT(10,4)")
 
 class RequestHandler(BaseHTTPRequestHandler):
     def _send_response(self, message):
@@ -64,16 +87,16 @@ class RequestHandler(BaseHTTPRequestHandler):
         timestamp = json_data.get('timestamp', None)
 
         if timestamp is None:
-            timestamp = int(time.time())
+            timestamp = int(time.time() * 1000) # Get current time in milliseconds
         else:
             try:
                 timestamp = int(timestamp)
             except ValueError:
-                timestamp = int(time.time())
+                timestamp = int(time.time() * 1000)
 
         if value is not None:
             client_address = self.client_address[0]
-
+            hostname = get_host_from_ip(client_address)
             # Connect to MySQL and insert data
             try:
                 connection = mysql.connector.connect(
@@ -85,21 +108,25 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 create_database(cursor)
                 create_table(cursor)
-                insert_data(cursor, value)
+                check_and_create_column(cursor, hostname)
+                insert_data(cursor, hostname, value, timestamp)
 
                 connection.commit()
 
                 self._send_response(f"Received value {value} with timestamp {timestamp} from IP address {client_address}")
+                print(f"Received value {value} with timestamp {timestamp} from IP address {client_address}")
                 logging.info(f"Received value {value} with timestamp {timestamp} from IP address {client_address}")
 
             except Exception as e:
                 self._send_response(f"Error: {e}")
+                print(f"Error: {e}")
                 logging.error(f"Error: {e}")
             finally:
                 cursor.close()
                 connection.close()
         else:
             self._send_response(f"Invalid JSON format from IP address {client_address}.")
+            print(f"Invalid JSON format from IP address {client_address}.")
             logging.warning(f"Invalid JSON format from IP address {client_address}.")
 
 def run(server_class=HTTPServer, handler_class=RequestHandler):
