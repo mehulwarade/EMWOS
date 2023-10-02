@@ -5,6 +5,17 @@ EMWOS: Energy Monitoring and Workflow Optimization Scheduler system
 This is the system developed during my PhD.
 
 # Energy Monitoring
+This needs the library mysql-connector-python for python in order to work.
+
+Install with:
+<!-- https://askubuntu.com/a/754389 -->
+
+APT: ```sudo apt install python3-mysql.connector```
+
+PIP3: ```pip3 install mysql-connector-python```
+
+Test with: ```import mysql.connector``` in python3 env
+
 
 ### Test with ThunderClient
 
