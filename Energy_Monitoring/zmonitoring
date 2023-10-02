@@ -46,24 +46,48 @@ def get_host_from_ip(ip):
         return host_cache[ip]
     
     try:
-        host = socket.gethostbyaddr(ip)[0]
-        host_cache[ip] = host
+        host = socket.gethostbyaddr(ip)[0] # get the host name through the IP
+        host_cache[ip] = host # add to cache
         return host
     except socket.herror:
-        modified_ip = ip.replace('.', '_') # error handling
-        host_cache[ip] = modified_ip
+        # error handling. If no host identified for a IP than put the column name as IP with _ instead of .
+        # Example: 192.168.5.190 will be 192_168_5_190
+
+        modified_ip = ip.replace('.', '_')
+        host_cache[ip] = modified_ip # add to cache
         return modified_ip
 
+# Creates database is not exists
 def create_database(cursor):
     cursor.execute(f"CREATE DATABASE IF NOT EXISTS {mysql_config['db_name']}")
 
+# Creates table if not exists
 def create_table(cursor):
     cursor.execute(f"USE {mysql_config['db_name']}")
     cursor.execute(f"CREATE TABLE IF NOT EXISTS {mysql_config['table_name']} (id INT AUTO_INCREMENT PRIMARY KEY, timestamp BIGINT)")
 
+# Inserts data in the table
 def insert_data(cursor, hostname, value, timestamp):
     cursor.execute(f"USE {mysql_config['db_name']}")
     cursor.execute(f"INSERT INTO {mysql_config['table_name']} (timestamp, {hostname}) VALUES (%s, %s)", (timestamp, value))
+
+# Gets the existing row where the timestamp is within 500ms of the new data
+def get_existing_row(cursor, hostname, timestamp):
+    cursor.execute(f"USE {mysql_config['db_name']}")
+    # print(f"SELECT * FROM {mysql_config['table_name']} WHERE ABS({mysql_config['table_name']}.timestamp - {timestamp}) <= 500")
+    cursor.execute(f"SELECT * FROM {mysql_config['table_name']} WHERE ABS({mysql_config['table_name']}.timestamp - {timestamp}) <= 500")
+    return cursor.fetchone()
+
+# Inserting or Updating the data in the table
+def insert_or_update_data(cursor, hostname, value, timestamp):
+    existing_row = get_existing_row(cursor, hostname, timestamp)
+    print(existing_row)
+    if existing_row:
+        existing_id = existing_row[0]
+        cursor.execute(f"USE {mysql_config['db_name']}")
+        cursor.execute(f"UPDATE {mysql_config['table_name']} SET {hostname} = %s WHERE id = %s", (value, existing_id))
+    else:
+        insert_data(cursor, hostname, value, timestamp)
 
 def check_and_create_column(cursor, hostname):
     cursor.execute(f"USE {mysql_config['db_name']}")
@@ -109,7 +133,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 create_database(cursor)
                 create_table(cursor)
                 check_and_create_column(cursor, hostname)
-                insert_data(cursor, hostname, value, timestamp)
+                insert_or_update_data(cursor, hostname, value, timestamp)
 
                 connection.commit()
 
