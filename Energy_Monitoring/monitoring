@@ -16,7 +16,7 @@ DEFAULT_SQL_USER = 'root'
 DEFAULT_SQL_PASSWORD = 'z'
 DEFAULT_SQL_DB = 'phd'
 DEFAULT_SQL_TABLE = 'test'
-DEFAULT_PORT = 8443
+DEFAULT_PORT = 8443 # lsof -i tcp:8443
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description='Start the monitoring server.')

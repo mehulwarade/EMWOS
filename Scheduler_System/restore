@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+import os
+
+def delete_sub_files(directory):
+    for root, dirs, files in os.walk(directory):
+        for file_name in files:
+            if file_name.endswith('.sub'):
+                file_path = os.path.join(root, file_name)
+                os.remove(file_path)
+
+def remove_bak_extension(directory):
+    for root, dirs, files in os.walk(directory):
+        for file_name in files:
+            if file_name.endswith('.bak'):
+                bak_path = os.path.join(root, file_name)
+                new_name = os.path.splitext(bak_path)[0]  # Remove the .bak extension
+                os.rename(bak_path, new_name)
+
+if __name__ == '__main__':
+    directory = 'testFolder'  # Replace with the actual directory path
+
+    # Delete .sub files
+    delete_sub_files(directory)
+
+    # Remove .bak extension
+    remove_bak_extension(directory)
