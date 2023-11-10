@@ -1,0 +1,40 @@
+000 (3659.000.000) 2023-08-31 21:11:30 Job submitted from host: <192.168.5.10:9618?addrs=192.168.5.10-9618&alias=master&noUDP&sock=schedd_362_e15f>
+    DAG Node: mProject_ID0000023
+    pool:condorpool
+...
+040 (3659.000.000) 2023-08-31 21:17:35 Started transferring input files
+	Transferring to host: <192.168.5.51:9618?addrs=192.168.5.51-9618&alias=alpha&noUDP&sock=slot3_67907_5fe2_12>
+...
+040 (3659.000.000) 2023-08-31 21:17:35 Finished transferring input files
+...
+001 (3659.000.000) 2023-08-31 21:17:35 Job executing on host: <192.168.5.51:9618?addrs=192.168.5.51-9618&alias=alpha&noUDP&sock=startd_67873_2008>
+	SlotName: slot3@alpha
+	CondorScratchDir = "/var/lib/condor/execute/dir_69187"
+	Cpus = 1
+	Disk = 15002496
+	Memory = 1952
+...
+006 (3659.000.000) 2023-08-31 21:17:44 Image size of job updated: 177656
+	174  -  MemoryUsage of job (MB)
+	177656  -  ResidentSetSize of job (KB)
+...
+040 (3659.000.000) 2023-08-31 21:22:27 Started transferring output files
+...
+040 (3659.000.000) 2023-08-31 21:22:29 Finished transferring output files
+...
+005 (3659.000.000) 2023-08-31 21:22:29 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:04:46, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:04:46, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	105080352  -  Run Bytes Sent By Job
+	20696990  -  Run Bytes Received By Job
+	105080352  -  Total Bytes Sent By Job
+	20696990  -  Total Bytes Received By Job
+	Partitionable Resources :     Usage  Request Allocated 
+	   Cpus                 :      1.00        1         1 
+	   Disk (KB)            : 175391       22500  15002496 
+	   Memory (MB)          :    174           1      1952 
+
+	Job terminated of its own accord at 2023-08-31T21:22:42Z with exit-code 0.
