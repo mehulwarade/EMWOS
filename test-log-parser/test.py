@@ -19,7 +19,7 @@ job_start_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*Job subm
 job_data = []
 
 # Open the log file for reading
-with open('log.log', 'r') as file:
+with open('a.log', 'r') as file:
     lines = file.readlines()
 
     current_job = None
@@ -77,7 +77,7 @@ with open('log.log', 'r') as file:
         if job_start_match:
             start_time = datetime.strptime(job_start_match.group(1), '%Y-%m-%d %H:%M:%S')
             start_timestamp = int(start_time.timestamp())
-            # print(start_timestamp)
+            print(start_timestamp)
 
         if dag_node_match:
             dag_node = dag_node_match.group(1)
@@ -104,9 +104,9 @@ with open('log.log', 'r') as file:
             end_time = datetime.strptime(termination_match.group(1), '%Y-%m-%dT%H:%M:%SZ')
             exit_code = termination_match.group(2)
             end_timestamp = int(end_time.timestamp())
-            # print(end_timestamp)
+            print(end_timestamp)
             execution_time = end_timestamp - start_timestamp
-            # print(execution_time)
+            print(execution_time)
 
 # Write the extracted data to a CSV file
 with open('output.csv', 'w', newline='') as file:

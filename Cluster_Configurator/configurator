@@ -7,9 +7,7 @@ from datetime import datetime
 
 LOG_CONDOR_STATUS_FILE_NAME = 'log_condor_status'
 LOG_CONFIGURATOR_FILE_NAME = 'log_configurator'
-masterIp = '192.168.5.10'
 masterPass = 'z'
-user = 'mehul'
 
 def printHelp():
     script_name = os.path.basename(__file__)
@@ -63,17 +61,17 @@ def runSshCommand(command, command_name):
     with open(LOG_CONFIGURATOR_FILE_NAME, 'a') as f:
         f.write(log)
     
-    print(f"Command '{command_name}' executed. Log file generated.\n")
+    # print(f"Command '{command_name}' executed. Log file generated.\n")
 
-def getCondorStatus(masterIp, user):
+def getCondorStatus():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     output_file = os.path.join(current_dir, LOG_CONDOR_STATUS_FILE_NAME)
-    command = f"ssh -t {user}@{masterIp} 'condor_status -master -format \"%s\\n\" MasterIpAddr > {output_file}'"
+    command = f"condor_status -master -format \"%s\\n\" MasterIpAddr > {output_file}"
     runSshCommand(command, "getCondorStatus")
 
-def killCondorDaemon(user, target):
-    command = f"ssh -t {user}@{target} 'pgrep condor_master | xargs kill'"
-    runSshCommand(command, "killCondorDaemon")
+# def killCondorDaemon(user, target):
+#     command = f"ssh -t {user}@{target} 'pgrep condor_master | xargs kill'"
+#     runSshCommand(command, "killCondorDaemon")
 
 def generate_condor_command(input_ip_or_hostname, daemon):
     with open('log_condor_status', 'r') as file:
@@ -83,16 +81,19 @@ def generate_condor_command(input_ip_or_hostname, daemon):
                 alias = parts[1].split("&")[0]
                 if daemon == 'on':
                     command = f"echo {masterPass} | sudo -S condor_on '{line.strip()}' -startd"
-                    remotecommand = f'ssh -t {user}@{masterIp} "{command}"'
+                    remotecommand = f'{command}'
                 elif daemon == 'off':
                     command = f"echo {masterPass} | sudo -S condor_off '{line.strip()}' -startd"
-                    remotecommand = f'ssh -t {user}@{masterIp} "{command}"'
+                    remotecommand = f'{command}'
                 else:
                     print('generate condor command [daemon not found]')
                 return remotecommand, alias
     return None, None
 
 if __name__ == "__main__":
+    getCondorStatus()
+    target = sys.argv[2]
+
     if os.path.exists(LOG_CONFIGURATOR_FILE_NAME) or os.path.exists(LOG_CONDOR_STATUS_FILE_NAME):
         backupFiles()
 
@@ -106,19 +107,17 @@ if __name__ == "__main__":
     elif sys.argv[1] == '-D':
         deleteAllBackupFolders()
     elif sys.argv[1] == '-on':
-        target = sys.argv[2]
-        getCondorStatus(masterIp, user)
         command = generate_condor_command(target,'on')
         if command is not None:
             runSshCommand(command, "OnCondorDaemon")
+            print(f"[{target}] condor node turned on.\n")
         else:
             print(f"No matching entry found for {target}")
     elif sys.argv[1] == '-off':
-        target = sys.argv[2]
-        getCondorStatus(masterIp, user)
         command = generate_condor_command(target,'off')
         if command is not None:
             runSshCommand(command, "OffCondorDaemon")
+            print(f"[{target}] condor node turned off.\n")
         else:
             print(f"No matching entry found for {target}")
     else:

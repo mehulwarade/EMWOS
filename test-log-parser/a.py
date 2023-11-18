@@ -1,92 +1,49 @@
-from datetime import datetime
+import re
 
-def parse_log_file(file_path):
+def find_pattern_in_log(file_path, pattern):
     with open(file_path, 'r') as file:
-        lines = file.readlines()
+        log_data = file.read()
 
-    job_data = {}
-    current_job_id = None
-
-    for line in lines:
-        if line.startswith('000'):
-            current_job_id = line.split()[1]
-            job_data[current_job_id] = {'events': []}
-        else:
-            job_data[current_job_id]['events'].append(line.strip())
-
-    return job_data
-
-def get_input_transfer_time(events):
-    start_time = None
-    end_time = None
-
-    for event in events:
-        if "Started transferring input files" in event:
-            start_time = datetime.strptime(event.split()[2] + ' ' + event.split()[3], "%Y-%m-%d %H:%M:%S")
-        elif "Finished transferring input files" in event:
-            end_time = datetime.strptime(event.split()[2] + ' ' + event.split()[3], "%Y-%m-%d %H:%M:%S")
-
-    if start_time and end_time:
-        return (end_time - start_time).total_seconds()
-    else:
-        return None
-
-def get_output_transfer_time(events):
-    start_time = None
-    end_time = None
-
-    for event in events:
-        if "Started transferring output files" in event:
-            start_time = datetime.strptime(event.split()[2] + ' ' + event.split()[3], "%Y-%m-%d %H:%M:%S")
-        elif "Finished transferring output files" in event:
-            end_time = datetime.strptime(event.split()[2] + ' ' + event.split()[3], "%Y-%m-%d %H:%M:%S")
-
-    if start_time and end_time:
-        return (end_time - start_time).total_seconds()
-    else:
-        return None
-
-def get_execution_time(events):
-    start_time = datetime.strptime(events[0].split()[2] + ' ' + events[0].split()[3], "%Y-%m-%d %H:%M:%S")
-    end_time = datetime.strptime(events[-1].split()[2] + ' ' + events[-1].split()[3], "%Y-%m-%d %H:%M:%S")
-
-    return (end_time - start_time).total_seconds()
-
-def get_resource_usage(events):
-    resource_data = {}
-
-    for event in events:
-        if "Partitionable Resources" in event:
-            resource_lines = event.split(':')[1:]
-            for line in resource_lines:
-                key, values = line.split()
-                resource_data[key.strip()] = {
-                    'Usage': float(values[0]),
-                    'Request': float(values[1]),
-                    'Allocated': float(values[2])
-                }
-
-    return resource_data
+    matches = re.findall(pattern, log_data)
+    return matches
 
 # Example usage:
-file_path = 'logfile.txt'
-job_data = parse_log_file(file_path)
+file_path = 'a.log'
+pattern_input_transfer = r'Started transferring input files.*?Finished transferring input files'
+pattern_output_transfer = r'Started transferring output files.*?Finished transferring output files'
+pattern_execution_time = r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*?Job terminated'
 
-job_id = '(3659.000.000)'
-print(job_data)
-events = job_data[job_id]['events']
+input_transfer_matches = find_pattern_in_log(file_path, pattern_input_transfer)
+output_transfer_matches = find_pattern_in_log(file_path, pattern_output_transfer)
+execution_time_matches = find_pattern_in_log(file_path, pattern_execution_time)
 
-input_transfer_time = get_input_transfer_time(events)
-output_transfer_time = get_output_transfer_time(events)
-execution_time = get_execution_time(events)
-resource_usage = get_resource_usage(events)
+# Process the matches as needed
+for match in input_transfer_matches:
+    print(f'Input Transfer Match: {match}')
 
-print(f'Input Files Transfer Time: {input_transfer_time} seconds')
-print(f'Output Files Transfer Time: {output_transfer_time} seconds')
-print(f'Total Execution Time: {execution_time} seconds')
-print('Resource Usage:')
-for key, values in resource_usage.items():
-    print(f'{key}:')
-    print(f'  Usage: {values["Usage"]}')
-    print(f'  Request: {values["Request"]}')
-    print(f'  Allocated: {values["Allocated"]}')
+for match in output_transfer_matches:
+    print(f'Output Transfer Match: {match}')
+
+for match in execution_time_matches:
+    print(f'Execution Time Match: {match}')
+
+
+
+
+
+resource_usage_data = find_pattern_in_log(file_path, r'Partitionable Resources(.*?) Job terminated')
+
+
+print(resource_usage_data)
+
+if resource_usage_data and len(resource_usage_data) >= 1:
+    resource_data = resource_usage_data[0][0].strip()
+    cpu_used, disk_used, disk_requested, disk_allocated, memory_used, memory_requested, memory_allocated = re.findall(r'Cpus\s+:\s+(\d+\.\d+).*?Disk \(KB\)\s+:\s+(\d+)\s+(\d+)\s+(\d+).*?Memory \(MB\)\s+:\s+(\d+)\s+(\d+)\s+(\d+)', resource_data)[0]
+    
+    print(f'CPU Used: {cpu_used}')
+    print(f'Disk Used: {disk_used} KB')
+    print(f'Disk Requested: {disk_requested} KB')
+    print(f'Disk Allocated: {disk_allocated} KB')
+    print(f'Memory Used: {memory_used} MB')
+    print(f'Memory Requested: {memory_requested} MB')
+    print(f'Memory Allocated: {memory_allocated} MB')
