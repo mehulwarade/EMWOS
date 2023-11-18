@@ -1,4 +1,0 @@
-<192.168.5.51:9618?addrs=192.168.5.51-9618&alias=alpha&noUDP&sock=master_3225_f96c>
-<192.168.5.52:9618?addrs=192.168.5.52-9618&alias=bravo&noUDP&sock=master_8494_11ef>
-<192.168.5.10:9618?addrs=192.168.5.10-9618&alias=master&noUDP&sock=master_16345_33fa>
-<192.168.5.70:9618?addrs=192.168.5.70-9618&alias=tango&noUDP&sock=master_350_a63c>
