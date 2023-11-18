@@ -122,3 +122,4 @@ if __name__ == "__main__":
             print(f"No matching entry found for {target}")
     else:
         print('args problem')
+        printHelp()
