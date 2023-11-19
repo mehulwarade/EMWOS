@@ -84,6 +84,7 @@ def generate_condor_command(input_ip_or_hostname, daemon):
                     remotecommand = f'{command}'
                 elif daemon == 'off':
                     command = f"echo {masterPass} | sudo -S condor_off '{line.strip()}' -startd"
+                    print(command)
                     remotecommand = f'{command}'
                 else:
                     print('generate condor command [daemon not found]')
@@ -91,9 +92,6 @@ def generate_condor_command(input_ip_or_hostname, daemon):
     return None, None
 
 if __name__ == "__main__":
-    getCondorStatus()
-    target = sys.argv[2]
-
     if os.path.exists(LOG_CONFIGURATOR_FILE_NAME) or os.path.exists(LOG_CONDOR_STATUS_FILE_NAME):
         backupFiles()
 
@@ -107,6 +105,8 @@ if __name__ == "__main__":
     elif sys.argv[1] == '-D':
         deleteAllBackupFolders()
     elif sys.argv[1] == '-on':
+        target = sys.argv[2]
+        getCondorStatus()
         command = generate_condor_command(target,'on')
         if command is not None:
             runSshCommand(command, "OnCondorDaemon")
@@ -114,6 +114,8 @@ if __name__ == "__main__":
         else:
             print(f"No matching entry found for {target}")
     elif sys.argv[1] == '-off':
+        target = sys.argv[2]
+        getCondorStatus()
         command = generate_condor_command(target,'off')
         if command is not None:
             runSshCommand(command, "OffCondorDaemon")
