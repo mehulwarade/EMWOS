@@ -6,6 +6,7 @@ import shutil
 from datetime import datetime
 import json
 import argparse
+import time
 
 LOG_CONDOR_STATUS_FILE_NAME = 'log_condor_status'
 LOG_CONFIGURATOR_FILE_NAME = 'log_configurator'
@@ -39,9 +40,27 @@ def processConfig(config_data):
     for node, data in config_data.items():
         ip = data.get('ip')
         alias = data.get('alias')
-        print(ip)
-        # Additional processing based on the config values can be added here
-        # You can call functions or perform actions based on the config data
+        info = data.get('info')
+        # print(info['maxMemory'])
+
+        if alias=='alpha':
+            slot1_cpu = data.get('config', {}).get('slot1', {}).get('cpu')
+            # backup_command = f"echo {masterPass} | scp {alias}:/etc/condor/condor_config.local /home/mehul/shared_fs/condor_config.local.bak"
+            # subprocess.run(backup_command, shell=True)
+
+            # with open('/home/mehul/shared_fs/condor_config.local', 'a') as file:
+            #         file.write(f"\nNUM_SLOTS={slot1_cpu}")
+
+            # Backup the local file
+            shutil.copy('/home/mehul/shared_fs/condor_config.local.clean', '/home/mehul/shared_fs/condor_config.local')
+
+            # Create the temp file
+            with open(f'/home/mehul/shared_fs/condor_config.local', 'a') as file:
+                file.write(f"\nNUM_SLOTS={slot1_cpu}")
+
+            mv_command = f"ssh mehul@{alias} 'sudo -S /usr/bin/mv -t /etc/condor/ /home/mehul/shared_fs/condor_config.local'"
+            subprocess.run(mv_command, shell=True)
+
 
 def createBackupFolder():
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
@@ -122,6 +141,7 @@ if __name__ == "__main__":
     parser.add_argument('-D', action='store_true', help="Delete all backup folders")
     parser.add_argument('-on', nargs=1, metavar='hostname', help="Turn on Condor daemon for the specified hostname")
     parser.add_argument('-off', nargs=1, metavar='hostname', help="Turn off Condor daemon for the specified hostname")
+    parser.add_argument('-r', nargs=1, metavar='hostname', help="Restarts/ reconfigures condor daemon on the node")
 
 
     args = parser.parse_args()
@@ -159,6 +179,19 @@ if __name__ == "__main__":
         if command is not None:
             runSshCommand(command, "OffCondorDaemon")
             print(f"[{target}] condor node turned off.\n")
+        else:
+            print(f"No matching entry found for {target}")
+        pass
+    elif args.r:
+        target = sys.argv[2]
+        getCondorStatus()
+        commandOn = generate_condor_command(target,'on')
+        commandOff = generate_condor_command(target,'off')
+        if commandOn is not None and commandOff is not None:
+            runSshCommand(commandOff, "OffCondorDaemon")
+            time.sleep(3)
+            runSshCommand(commandOn, "OnCondorDaemon")
+            print(f"[{target}] condor node restarted.\n")
         else:
             print(f"No matching entry found for {target}")
         pass
