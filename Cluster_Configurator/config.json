@@ -1,0 +1,52 @@
+{
+    "Node1": {
+        "ip": "192.168.5.51",
+        "alias": "alpha",
+        "info": {
+            "maxMemory": 1980,
+            "maxCpu": 8,
+            "CpuInfo": "i7-700k",
+            "connectionString": "<192.168.5.51:9618?addrs=192.168.5.51-9618&alias=alpha&noUDP&sock=master_2883_6408>"
+        },
+        "config": {
+            "slot1": {
+                "cpu": 1,
+                "memory": 100,
+                "disk": 100
+            },
+            "slot2": {},
+            "slot3": {},
+            "slot4": {},
+            "slot5": {},
+            "slot6": {},
+            "slot7": {},
+            "slot8": {},
+            "all": {}
+        }
+    },
+    "Node2": {
+        "ip": "192.168.5.52",
+        "alias": "bravo",
+        "info": {
+            "maxMemory": 1980,
+            "maxCpu": 8,
+            "CpuInfo": "i7-700k",
+            "connectionString": "<192.168.5.52:9618?addrs=192.168.5.52-9618&alias=bravo&noUDP&sock=master_3178_bc79>"
+        },
+        "config": {
+            "slot1": {
+                "cpu": 1,
+                "memory": 100,
+                "disk": 100
+            },
+            "slot2": {},
+            "slot3": {},
+            "slot4": {},
+            "slot5": {},
+            "slot6": {},
+            "slot7": {},
+            "slot8": {},
+            "all": {}
+        }
+    }
+}

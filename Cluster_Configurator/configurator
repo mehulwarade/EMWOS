@@ -4,6 +4,8 @@ import sys
 import os
 import shutil
 from datetime import datetime
+import json
+import argparse
 
 LOG_CONDOR_STATUS_FILE_NAME = 'log_condor_status'
 LOG_CONFIGURATOR_FILE_NAME = 'log_configurator'
@@ -18,7 +20,28 @@ def printHelp():
     print("  -on              Spawn condor daemon.")
     print("  -off             Turn Condor daemon off.")
     print("  -D               Delete all backup folders.")
+    print("  -config          Specify config file.")
     sys.exit(0)
+
+def readConfigFile(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            config_data = json.load(file)
+        return config_data
+    except FileNotFoundError:
+        print("File not found.")
+        sys.exit(1)
+    except json.JSONDecodeError:
+        print("Invalid JSON format.")
+        sys.exit(1)
+
+def processConfig(config_data):
+    for node, data in config_data.items():
+        ip = data.get('ip')
+        alias = data.get('alias')
+        print(ip)
+        # Additional processing based on the config values can be added here
+        # You can call functions or perform actions based on the config data
 
 def createBackupFolder():
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
@@ -69,10 +92,6 @@ def getCondorStatus():
     command = f"condor_status -master -format \"%s\\n\" MasterIpAddr > {output_file}"
     runSshCommand(command, "getCondorStatus")
 
-# def killCondorDaemon(user, target):
-#     command = f"ssh -t {user}@{target} 'pgrep condor_master | xargs kill'"
-#     runSshCommand(command, "killCondorDaemon")
-
 def generate_condor_command(input_ip_or_hostname, daemon):
     with open('log_condor_status', 'r') as file:
         for line in file:
@@ -84,7 +103,7 @@ def generate_condor_command(input_ip_or_hostname, daemon):
                     remotecommand = f'{command}'
                 elif daemon == 'off':
                     command = f"echo {masterPass} | sudo -S condor_off '{line.strip()}' -startd"
-                    print(command)
+                    # print(command)
                     remotecommand = f'{command}'
                 else:
                     print('generate condor command [daemon not found]')
@@ -95,16 +114,35 @@ if __name__ == "__main__":
     if os.path.exists(LOG_CONFIGURATOR_FILE_NAME) or os.path.exists(LOG_CONDOR_STATUS_FILE_NAME):
         backupFiles()
 
-    if len(sys.argv) < 2:
-        printHelp()
+    parser = argparse.ArgumentParser(description="EMWOS Condor Cluster Configurator")
 
-    if sys.argv[1] == '-h' or sys.argv[1] == '-help':
-        printHelp()
-    elif sys.argv[1] == '-d' or sys.argv[1] == '-delete':
+    # Define different arguments
+    parser.add_argument('-config', nargs=1, metavar='CONFIG', help="Path to the config JSON file")  
+    parser.add_argument('-d', action='store_true', help="Delete all generated files")
+    parser.add_argument('-D', action='store_true', help="Delete all backup folders")
+    parser.add_argument('-on', nargs=1, metavar='hostname', help="Turn on Condor daemon for the specified hostname")
+    parser.add_argument('-off', nargs=1, metavar='hostname', help="Turn off Condor daemon for the specified hostname")
+
+
+    args = parser.parse_args()
+
+    if not any(vars(args).values()):
+        parser.print_help()
+        sys.exit()
+
+    # Implement logic based on arguments
+    if args.config:
+        config_file = args.config[0]
+        config_data = readConfigFile(config_file)
+        processConfig(config_data)
+        print("Config processing completed.")
+    elif args.d:
         deleteGeneratedFiles()
-    elif sys.argv[1] == '-D':
+        pass
+    elif args.D:
         deleteAllBackupFolders()
-    elif sys.argv[1] == '-on':
+        pass
+    elif args.on:
         target = sys.argv[2]
         getCondorStatus()
         command = generate_condor_command(target,'on')
@@ -113,7 +151,8 @@ if __name__ == "__main__":
             print(f"[{target}] condor node turned on.\n")
         else:
             print(f"No matching entry found for {target}")
-    elif sys.argv[1] == '-off':
+        pass
+    elif args.off:
         target = sys.argv[2]
         getCondorStatus()
         command = generate_condor_command(target,'off')
@@ -122,6 +161,6 @@ if __name__ == "__main__":
             print(f"[{target}] condor node turned off.\n")
         else:
             print(f"No matching entry found for {target}")
+        pass
     else:
-        print('args problem')
-        printHelp()
+        parser.print_help()
