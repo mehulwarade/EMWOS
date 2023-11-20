@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+from collections import defaultdict
+from datetime import datetime
+import csv
+import argparse
+
+# Function to calculate time difference in seconds between two timestamps
+def calculate_execution_time(submit_time, success_time):
+    submit_datetime = datetime.fromtimestamp(submit_time)
+    success_datetime = datetime.fromtimestamp(success_time)
+    return (success_datetime - submit_datetime).total_seconds()
+
+# Parsing command-line arguments
+parser = argparse.ArgumentParser(description='Process log file and create CSV.')
+parser.add_argument('-i', '--input', type=str, help='Input file name/path', required=True)
+parser.add_argument('-o', '--output', type=str, help='Output file name/path', required=True)
+args = parser.parse_args()
+
+input_file = args.input
+output_file = args.output
+
+jobs_data = defaultdict(dict)
+
+with open(input_file, 'r') as file:
+    for line in file:
+        parts = line.split()
+        if len(parts) == 7:
+            timestamp = int(parts[0])
+            job_name = parts[1]
+            job_status = parts[2]
+            pool = parts[4]
+            job_id = parts[6]
+            if job_status == 'SUBMIT':
+                jobs_data[job_name]['submit_time'] = timestamp
+                jobs_data[job_name]['job_name'] = job_name
+                jobs_data[job_name]['pool'] = pool
+                jobs_data[job_name]['job_id'] = job_id
+            elif job_status == 'POST_SCRIPT_SUCCESS':
+                jobs_data[job_name]['success_time'] = timestamp
+
+# Outputting individual job data
+# for job_name, job_info in jobs_data.items():
+#     if 'submit_time' in job_info and 'success_time' in job_info:
+#         if job_info['pool'] != 'local':
+#             execution_time = calculate_execution_time(job_info['submit_time'], job_info['success_time'])
+#             job_name_extract = job_name.split('_')[0]  # Extracting job name
+#             job_execute_id = job_name.split('_')[1]
+#             print(f"Job Name: {job_name_extract}, Job ID: {job_execute_id}, Execution Time: {execution_time} seconds")
+
+# Writing data to a CSV file
+
+with open(output_file, 'w', newline='') as csvfile:
+    fieldnames = ['Job Name', 'Job Execute ID', 'Job Log ID', 'Start time','End time','Execution Time (seconds)']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+    writer.writeheader()
+
+    for job_name, job_info in jobs_data.items():
+        if 'submit_time' in job_info and 'success_time' in job_info and 'job_name' in job_info:
+            if job_info['pool'] != 'local':
+                execution_time = calculate_execution_time(job_info['submit_time'], job_info['success_time'])
+                job_name_extract = job_name.split('_')[0]  # Extracting job name
+                job_execute_id = job_name.split('_')[1]
+                writer.writerow({
+                    'Job Name': job_name_extract, 
+                    'Job Execute ID' : job_execute_id, 
+                    'Job Log ID': job_info['job_id'], 
+                    'Start time': job_info['submit_time'],
+                    'End time': job_info['success_time'],
+                    'Execution Time (seconds)': execution_time
+                })
+
+print(f"Data has been saved to {output_file}")
