@@ -34,3 +34,7 @@ Body (JSON):
   "value": 4256456312168532
 }
 ```
+
+
+need mysql for js
+npm i mysql
