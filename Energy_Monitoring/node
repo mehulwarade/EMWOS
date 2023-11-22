@@ -1,0 +1,134 @@
+#!/usr/bin/env node
+
+const { exec } = require('child_process');
+
+const mysql = require('mysql');
+
+// Create a connection
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'z',
+    database: 'phd',
+    multipleStatements: true,
+});
+
+const allIP = [
+    "192.168.5.105",
+    "192.168.5.102",
+    "192.168.5.110",
+    "192.168.5.9",
+    "192.168.5.8",
+    "192.168.5.151",
+    "192.168.5.152",
+    "192.168.5.153",
+    "192.168.5.154",
+    "192.168.5.155",
+    "192.168.5.156",
+    "192.168.5.157",
+    "192.168.5.158",
+    "192.168.5.159",
+    "192.168.5.160",
+    "192.168.5.161",
+    "192.168.5.162",
+    "192.168.5.163",
+    "192.168.5.164",
+    "192.168.5.165",
+    "192.168.5.166",
+    "192.168.5.167",
+    "192.168.5.168",
+    "192.168.5.169",
+    "192.168.5.170"
+]
+
+// Get the arguments passed through command line
+// First two elements are 'node' and the script file name
+const args = process.argv.slice(1);
+
+function getScriptFileName() {
+    const pathParts = process.argv[1].split('/');
+    return pathParts[pathParts.length - 1];
+}
+
+function displayHelp() {
+    console.log('Usage:');
+    console.log(`./${getScriptFileName()} [-check <IP>] [-start]`);
+    console.log('Options:');
+    console.log('-check [IP]   Test connections to the plugs');
+    console.log('-start   Start storing data into database');
+    console.log('-h   Display help');
+}
+
+async function testConnection(IP) {
+    if (IP != undefined) {
+        exec(`ping -c 1 ${IP}`, (error, stdout, stderr) => {
+            if (error) {
+                console.log("IP " + IP + " is dead");
+                return;
+            }
+            if (stderr) {
+                console.log("IP " + IP + " is dead");
+                return;
+            }
+            console.log("IP " + IP + " is alive")
+        });
+    } else {
+        await allIP.forEach(async (IP) => {
+            exec(`ping -c 1 ${IP}`, (error, stdout, stderr) => {
+                if (error) {
+                    console.log("IP " + IP + " is dead");
+                    return;
+                }
+                if (stderr) {
+                    console.log("IP " + IP + " is dead");
+                    return;
+                }
+                console.log("IP " + IP + " is alive")
+            });
+        });
+    }
+
+}
+
+if (args.includes('-h')) {
+    displayHelp();
+} else {
+    const indexStart = args.indexOf('-start');
+    const indexCheck = args.indexOf('-check');
+
+    let argumentStart,  argumentCheck;
+
+    if (indexStart !== -1) {
+        argumentStartTableName = args[indexStart + 1];
+        connection.connect((err) => {
+            if (err) {
+                console.error('Error connecting to database:', err);
+                return;
+            }
+            console.log('Connected to MySQL database');
+
+            // Example query
+            connection.query(`SELECT * FROM ${argumentStartTableName}`, (error, results, fields) => {
+                if (error) {
+                    console.error('Error executing query:', error);
+                    return;
+                }
+                console.log('Query results:', results);
+            });
+
+            // Close the connection
+            connection.end((endErr) => {
+                if (endErr) {
+                    console.error('Error closing connection:', endErr);
+                    return;
+                }
+                console.log('Connection closed');
+            });
+        });
+    }
+
+    if (indexCheck !== -1) {
+        argumentCheck = args[indexCheck + 1];
+        testConnection(argumentCheck);
+    }
+}
