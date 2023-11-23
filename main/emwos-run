@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# echo 'Running mvp with energy policy'
+./mvp -policy performance -allocator ../Resource_Allocator/allocator -monitoring ../Energy_Monitoring/monitoring -workflow ../../WF-EMWOS
+
+
+# ./mvp -policy performance -allocator ../Resource_Allocator/configurator -monitoring ../Energy_Monitoring/monitoring -workflow ../../WF-EMWOS

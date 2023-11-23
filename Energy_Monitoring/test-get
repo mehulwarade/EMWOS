@@ -93,11 +93,10 @@ if connection.is_connected():
             for i, ip in enumerate(smart_plug_data["allIP"]):
                 url = f"http://{ip}/sensor/athom_smart_plug_v2_power"
                 try:
-                    # print(insert_query)
                     response = requests.get(url)
                     power_value = 0
-                    if response.status_code == 200:
-                        power_value = response.json().get("value", 0)
+                    power_value = response.json().get("value", 0)
+                    print(power_value)
                     pwr_values[i] = power_value
                 except requests.RequestException as e:
                     # print(f"Error fetching data from {url}: {e}")
