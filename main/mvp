@@ -85,6 +85,7 @@ if [ "$POLICY" = "performance" ]; then
     # Run the workflow
     echo "Running workflow: $WORKFLOW_FOLDER"
     pegasus-run "$WORKFLOW_FOLDER"
+    pegasus-status -w1 "$WORKFLOW_FOLDER"
 
 elif [ "$POLICY" = "energy" ]; then
     echo "Implement actions for the 'energy' policy..."
