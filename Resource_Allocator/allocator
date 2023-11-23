@@ -15,13 +15,14 @@ masterPass = 'z'
 
 def printHelp():
     script_name = os.path.basename(__file__)
-    print(f"Usage: ./{script_name} [options] <IP or hostname>")
+    print(f"Usage: ./{script_name} [options]")
     print("Options:")
     print("  -h, -help        Show this help message and exit.")
     print("  -d, -delete      Delete all generated files.")
-    print("  -on              Spawn condor daemon.")
-    print("  -off             Turn Condor daemon off.")
     print("  -D               Delete all backup folders.")
+    print("  -on <IP or hostname>              Spawn Condor daemon.")
+    print("  -off <IP or hostname>             Turn Condor daemon off.")
+    print("  -all <action>    Turn all Condor daemons on (action: on) or off (action: off).")
     print("  -config          Specify config file.")
     sys.exit(0)
 
@@ -143,6 +144,7 @@ if __name__ == "__main__":
     parser.add_argument('-on', nargs=1, metavar='hostname', help="Turn on Condor daemon for the specified hostname")
     parser.add_argument('-off', nargs=1, metavar='hostname', help="Turn off Condor daemon for the specified hostname")
     parser.add_argument('-r', nargs=1, metavar='hostname', help="Restarts/ reconfigures condor daemon on the node")
+    parser.add_argument('-all', nargs=1, metavar='daemon_action', help="Turn on/off all Condor daemons")
 
 
     args = parser.parse_args()
@@ -197,5 +199,23 @@ if __name__ == "__main__":
         else:
             print(f"No matching entry found for {target}")
         pass
+    elif args.all:
+        action = args.all[0]
+        getCondorStatus()
+        nodes = []
+        with open(LOG_CONDOR_STATUS_FILE_NAME, 'r') as file:
+            for line in file:
+                if '&alias=' in line:
+                    parts = line.split("&alias=")
+                    alias = parts[1].split("&")[0]
+                    nodes.append(alias)
+
+        for node in nodes:
+            command = generate_condor_command(node, action)
+            if command is not None:
+                runSshCommand(command, f"{action.capitalize()}CondorDaemon for {node}")
+                print(f"[{node}] condor node turned {action}.\n")
+            else:
+                print(f"No matching entry found for {node}")
     else:
         parser.print_help()
