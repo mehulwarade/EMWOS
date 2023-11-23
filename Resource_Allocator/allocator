@@ -8,8 +8,9 @@ import json
 import argparse
 import time
 
-LOG_CONDOR_STATUS_FILE_NAME = 'log_condor_status'
-LOG_CONFIGURATOR_FILE_NAME = 'log_configurator'
+script_dir = os.path.dirname(os.path.abspath(__file__))
+LOG_CONDOR_STATUS_FILE_NAME = os.path.join(script_dir, 'log_condor_status')
+LOG_ALLOCATOR_FILE_NAME = os.path.join(script_dir, 'log_allocator')
 masterPass = 'z'
 
 def printHelp():
@@ -64,29 +65,29 @@ def processConfig(config_data):
 
 def createBackupFolder():
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-    backup_folder = f'backup_{timestamp}'
+    backup_folder = os.path.join(script_dir, f'backup_{timestamp}')
     os.makedirs(backup_folder)
     return backup_folder
 
 def backupFiles():
     backup_folder = createBackupFolder()
-    if os.path.exists(LOG_CONFIGURATOR_FILE_NAME):
-        shutil.move(LOG_CONFIGURATOR_FILE_NAME, os.path.join(backup_folder, 'log_bk'))
+    if os.path.exists(LOG_ALLOCATOR_FILE_NAME):
+        shutil.move(LOG_ALLOCATOR_FILE_NAME, os.path.join(backup_folder, 'log_bk'))
     if os.path.exists(LOG_CONDOR_STATUS_FILE_NAME):
         shutil.move(LOG_CONDOR_STATUS_FILE_NAME, os.path.join(backup_folder, 'status_bk'))
 
 def deleteGeneratedFiles():
-    if os.path.exists(LOG_CONFIGURATOR_FILE_NAME):
-        os.remove(LOG_CONFIGURATOR_FILE_NAME)
+    if os.path.exists(LOG_ALLOCATOR_FILE_NAME):
+        os.remove(LOG_ALLOCATOR_FILE_NAME)
     if os.path.exists(LOG_CONDOR_STATUS_FILE_NAME):
         os.remove(LOG_CONDOR_STATUS_FILE_NAME)
     print("Generated files deleted.")
     sys.exit(0)
 
 def deleteAllBackupFolders():
-    backup_folders = [folder for folder in os.listdir() if folder.startswith('backup_') and os.path.isdir(folder)]
+    backup_folders = [folder for folder in os.listdir(script_dir) if folder.startswith('backup_') and os.path.isdir(os.path.join(script_dir, folder))]
     for folder in backup_folders:
-        shutil.rmtree(folder)
+        shutil.rmtree(os.path.join(script_dir, folder))
 
 def runSshCommand(command, command_name):
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -100,7 +101,7 @@ def runSshCommand(command, command_name):
           f"Error: {stderr_str}\n" \
           f"....\n"
 
-    with open(LOG_CONFIGURATOR_FILE_NAME, 'a') as f:
+    with open(LOG_ALLOCATOR_FILE_NAME, 'a') as f:
         f.write(log)
     
     # print(f"Command '{command_name}' executed. Log file generated.\n")
@@ -112,7 +113,7 @@ def getCondorStatus():
     runSshCommand(command, "getCondorStatus")
 
 def generate_condor_command(input_ip_or_hostname, daemon):
-    with open('log_condor_status', 'r') as file:
+    with open(LOG_CONDOR_STATUS_FILE_NAME, 'r') as file:
         for line in file:
             if input_ip_or_hostname in line:
                 parts = line.split("&alias=")
@@ -130,10 +131,10 @@ def generate_condor_command(input_ip_or_hostname, daemon):
     return None, None
 
 if __name__ == "__main__":
-    if os.path.exists(LOG_CONFIGURATOR_FILE_NAME) or os.path.exists(LOG_CONDOR_STATUS_FILE_NAME):
+    if os.path.exists(LOG_ALLOCATOR_FILE_NAME) or os.path.exists(LOG_CONDOR_STATUS_FILE_NAME):
         backupFiles()
 
-    parser = argparse.ArgumentParser(description="EMWOS Condor Cluster Configurator")
+    parser = argparse.ArgumentParser(description="EMWOS Condor Cluster Resource ALLOCATOR")
 
     # Define different arguments
     parser.add_argument('-config', nargs=1, metavar='CONFIG', help="Path to the config JSON file")  
@@ -147,6 +148,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if not any(vars(args).values()):
+        getCondorStatus()
         parser.print_help()
         sys.exit()
 
