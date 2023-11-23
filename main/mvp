@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Check if all arguments are provided
+if [ "$#" -ne 8 ]; then
+    echo "Usage: $0 -policy [performance|energy] -allocator [path_to_allocator_script] -monitoring [path_to_monitoring_script] -workflow [path_to_workflow_file]"
+    exit 1
+fi
+
+# Function to check if a file exists
+file_exists() {
+    if [ ! -f "$1" ]; then
+        echo "Error: $2 not found at $1"
+        exit 1
+    fi
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case $key in
+    -policy)
+        POLICY="$2"
+        shift
+        shift
+        ;;
+    -allocator)
+        ALLOCATOR_SCRIPT="$2"
+        shift
+        shift
+        ;;
+    -monitoring)
+        MONITORING_SCRIPT="$2"
+        shift
+        shift
+        ;;
+    -workflow)
+        WORKFLOW_FOLDER="$2"
+        shift
+        shift
+        ;;
+    *)
+        echo "Invalid argument: $1"
+        exit 1
+        ;;
+    esac
+done
+
+# Check if the policy argument is valid
+if [ "$POLICY" != "performance" ] && [ "$POLICY" != "energy" ]; then
+    echo "Invalid argument for -policy. Use 'performance' or 'energy'."
+    exit 1
+fi
+
+# Check if allocator, monitoring, and workflow files exist
+file_exists "$ALLOCATOR_SCRIPT" "Allocator script"
+file_exists "$MONITORING_SCRIPT" "Monitoring script"
+if [ ! -d "$WORKFLOW_FOLDER" ]; then
+    echo "Error: Workflow folder not found at $WORKFLOW_FOLDER"
+    exit 1
+fi
+
+# Output selected options
+echo "Policy selected: $POLICY"
+echo "Allocator script: $ALLOCATOR_SCRIPT"
+echo "Monitoring script: $MONITORING_SCRIPT"
+echo "Workflow Folder: $WORKFLOW_FOLDER"
+
+# Perform actions based on policy selected
+if [ "$POLICY" = "performance" ]; then
+    echo "Allocating maximum resources based on the policy."
+    # Run allocator script with specific arguments
+    for node in alpha bravo charlie delta echo; do
+        echo "Allocating resources for $node..."
+        $ALLOCATOR_SCRIPT -on $node
+        sleep 3
+        echo "Resources allocated for $node."
+    done
+
+    echo "Starting the collection of energy consumption data and storing into database."
+    echo "For MVP run manually now......"
+    # Wait for user input to proceed
+    read -p "Press Enter to continue..."
+
+    # Run the workflow
+    echo "Running workflow: $WORKFLOW_FOLDER"
+    pegasus-run "$WORKFLOW_FOLDER"
+
+elif [ "$POLICY" = "energy" ]; then
+    echo "Implement actions for the 'energy' policy..."
+    # Add actions for the 'energy' policy here
+    # For example:
+    # Run a different set of commands or scripts for the 'energy' policy
+else
+    echo "Invalid policy selected."
+    exit 1
+fi
