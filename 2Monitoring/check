@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+const { exec } = require('child_process');
+let allIP = require('./libraries/data.json').allIP;
+
+allIP.forEach((IP) => {
+    exec(`ping -c 1 ${IP}`, (error, stdout, stderr) => {
+        if (error) {
+            console.log("IP " + IP + " is dead");
+            return;
+        }
+        if (stderr) {
+            console.log("IP " + IP + " is dead");
+            return;
+        }
+        console.log("IP " + IP + " is alive")
+    });
+});

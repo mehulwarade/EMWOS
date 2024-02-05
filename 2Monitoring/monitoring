@@ -1,0 +1,92 @@
+#!/usr/bin/env node
+const athom = require("./libraries/plug");
+const fs = require('fs');
+
+const args = process.argv.slice(2);
+
+let allIP = require('./libraries/data.json').allIP;
+let interval_to_call = require('./libraries/data.json').interval_to_call;
+let cache_values_before_writing = require('./libraries/data.json').cache_values_before_writing;
+let file_name = require('./libraries/data.json').file_name;
+// console.log(allIP);
+// Help section
+if (args.includes('-h')) {
+    console.log(`Usage: script.js [options]
+Options:
+-ip <allIP>          Set allIP (default: ${allIP})
+-i <interval>        Set interval_to_call (default: ${interval_to_call})
+-cv <cacheValues>    Set cache_values_before_writing (default: ${cache_values_before_writing})
+-f <fileName>        Set file_name (default: ${file_name})
+-h                   Display help`);
+    process.exit(0);
+}
+
+// Parse optional parameters
+for (let i = 0; i < args.length; i++) {
+    if (args[i] === '-ip') {
+        allIP = JSON.parse(args[i + 1]);
+    } else if (args[i] === '-i') {
+        interval_to_call = args[i + 1];
+    } else if (args[i] === '-cv') {
+        cache_values_before_writing = args[i + 1];
+    } else if (args[i] === '-f') {
+        file_name = args[i + 1];
+    }
+}
+const global_env = { allIP, interval_to_call, cache_values_before_writing, file_name }
+
+// console.log(global_env.allIP);
+
+
+let csvData = ``;
+let headerWritten = false;
+let firstRun = true;
+
+const writeToCSV = (pwr) => {
+    const convertToCSV = (arr) => {
+        const timestamp = Math.floor(Date.now() / 1000);
+        // timestamp,description,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20
+        return `${timestamp},,${arr.filter((val) => val !== undefined).join(',')}\n`;
+    };
+
+    const writeHeader = () => {
+        const header = 'timestamp,description,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20\n';
+        fs.writeFile(global_env.file_name, header, (err) => {
+            if (err) {
+                console.error('Error writing header to file:', err);
+            } else {
+                // console.log(`Header written to ${global_env.file_name}`);
+                headerWritten = true;
+            }
+        });
+    };
+
+    if (!headerWritten) {
+        writeHeader();
+    }
+
+    // Create or append data to the CSV file
+    csvData += convertToCSV(pwr);
+    // console.log(csvData);
+    // console.log(csvData.split('\n').length);
+    if (csvData.split('\n').length >= global_env.cache_values_before_writing) {
+        fs.appendFile(global_env.file_name, csvData, (err) => {
+            if (err) {
+                console.error('Error appending to file:', err);
+            } else {
+                // console.log(`Data appended to ${global_env.file_name}`);
+            }
+        });
+        csvData = ``;
+    }
+}
+
+// power_data(callback_function, allIp array, interval)
+athom.power_data(async (res) => {
+    if (firstRun) {
+        firstRun = false;
+    } else {
+        // console.log(res);
+        writeToCSV(res);
+    }
+}, global_env.allIP, global_env.interval_to_call);

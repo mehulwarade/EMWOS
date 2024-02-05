@@ -172,7 +172,7 @@ if __name__ == "__main__":
         command = generate_condor_command(target,'on')
         if command is not None:
             runSshCommand(command, "OnCondorDaemon")
-            print(f"[{target}] condor node turned on.\n")
+            print(f"[{target}] condor node turned on.")
         else:
             print(f"No matching entry found for {target}")
         pass
@@ -182,7 +182,7 @@ if __name__ == "__main__":
         command = generate_condor_command(target,'off')
         if command is not None:
             runSshCommand(command, "OffCondorDaemon")
-            print(f"[{target}] condor node turned off.\n")
+            print(f"[{target}] condor node turned off.")
         else:
             print(f"No matching entry found for {target}")
         pass
@@ -195,7 +195,7 @@ if __name__ == "__main__":
             runSshCommand(commandOff, "OffCondorDaemon")
             time.sleep(3)
             runSshCommand(commandOn, "OnCondorDaemon")
-            print(f"[{target}] condor node restarted.\n")
+            print(f"[{target}] condor node restarted.")
         else:
             print(f"No matching entry found for {target}")
         pass
@@ -214,7 +214,7 @@ if __name__ == "__main__":
             command = generate_condor_command(node, action)
             if command is not None:
                 runSshCommand(command, f"{action.capitalize()}CondorDaemon for {node}")
-                print(f"[{node}] condor node turned {action}.\n")
+                print(f"[{node}] condor node turned {action}.")
             else:
                 print(f"No matching entry found for {node}")
     else:

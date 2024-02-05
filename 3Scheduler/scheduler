@@ -14,6 +14,6 @@ def replace_text_in_files(directory):
                         print(line, end='')
 
 if __name__ == '__main__':
-    directory = 'testFolder'  # Replace with the actual directory path
+    directory = '/home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0005'  # Replace with the actual directory path
     replace_text_in_files(directory)
 

@@ -87,7 +87,6 @@ async function testConnection(IP) {
             });
         });
     }
-
 }
 
 if (args.includes('-h')) {
