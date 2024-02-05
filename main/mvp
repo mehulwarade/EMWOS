@@ -61,37 +61,70 @@ if [ ! -d "$WORKFLOW_FOLDER" ]; then
 fi
 
 # Output selected options
+echo "++++++++ EMWOS ++++++++++++++++++"
 echo "Policy selected: $POLICY"
 echo "Allocator script: $ALLOCATOR_SCRIPT"
 echo "Monitoring script: $MONITORING_SCRIPT"
 echo "Workflow Folder: $WORKFLOW_FOLDER"
+echo ""
+echo "++++++++++ Turning all nodes off +++++++++++"
+$ALLOCATOR_SCRIPT -all off
+sleep 3
 
 # Perform actions based on policy selected
 if [ "$POLICY" = "performance" ]; then
+    echo "++++++++++ Resource allocation +++++++++++"
     echo "Allocating maximum resources based on the policy."
     # Run allocator script with specific arguments
     for node in alpha bravo charlie delta echo; do
         echo "Allocating resources for $node..."
-        $ALLOCATOR_SCRIPT -on $node
+        $ALLOCATOR_SCRIPT -on $node >> log.log
         sleep 3
-        echo "Resources allocated for $node."
+        # echo "Resources allocated for $node."
     done
+    echo ""
+    echo "++++++++++ Energy monitoring +++++++++++"
 
-    echo "Starting the collection of energy consumption data and storing into database."
+    echo "Starting Energy Monitoring..."
     echo "For MVP run manually now......"
     # Wait for user input to proceed
     read -p "Press Enter to continue..."
+    
+    echo ""
+    echo "++++++++++ Workflow execution +++++++++++"
 
     # Run the workflow
     echo "Running workflow: $WORKFLOW_FOLDER"
+    read -p "Press Enter to execute the workflow..."
     pegasus-run "$WORKFLOW_FOLDER"
     pegasus-status -w1 "$WORKFLOW_FOLDER"
 
 elif [ "$POLICY" = "energy" ]; then
-    echo "Implement actions for the 'energy' policy..."
-    # Add actions for the 'energy' policy here
-    # For example:
-    # Run a different set of commands or scripts for the 'energy' policy
+    echo "++++++++++ Resource allocation +++++++++++"
+    echo "Allocating maximum resources based on the policy."
+    # Run allocator script with specific arguments
+    for node in alpha bravo; do
+        echo "Allocating resources for $node..."
+        $ALLOCATOR_SCRIPT -on $node >> log.log
+        sleep 3
+        # echo "Resources allocated for $node."
+    done
+    echo ""
+    echo "++++++++++ Energy monitoring +++++++++++"
+
+    echo "Starting Energy Monitoring..."
+    echo "For MVP run manually now......"
+    # Wait for user input to proceed
+    read -p "Press Enter to continue..."
+    
+    echo ""
+    echo "++++++++++ Workflow execution +++++++++++"
+
+    # Run the workflow
+    echo "Running workflow: $WORKFLOW_FOLDER"
+    read -p "Press Enter to execute the workflow..."
+    pegasus-run "$WORKFLOW_FOLDER"
+    pegasus-status -w1 "$WORKFLOW_FOLDER"
 else
     echo "Invalid policy selected."
     exit 1

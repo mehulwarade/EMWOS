@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # echo 'Running mvp with energy policy'
-./mvp -policy performance -allocator ../Resource_Allocator/allocator -monitoring ../Energy_Monitoring/monitoring -workflow ../../WF-EMWOS
+./mvp -policy performance -allocator ../Resource_Allocator/allocator -monitoring ../Energy_Monitoring/monitoring -workflow /home/mehul/shared_fs/montage/emwos_half_performance/data/customFolder
 
+-target budget energy performance
 
-# ./mvp -policy performance -allocator ../Resource_Allocator/configurator -monitoring ../Energy_Monitoring/monitoring -workflow ../../WF-EMWOS
+# ./mvp -policy performance -allocator ../Resource_Allocator/configurator -monitoring ../Energy_Monitoring/monitoring -workflow /home/mehul/shared_fs/montage/emwos_half_performance/data/emwos-energy
