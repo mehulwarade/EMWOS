@@ -1,8 +1,10 @@
 #!/usr/bin/env node
+const { head } = require("request");
 const athom = require("./libraries/plug");
 const fs = require('fs');
 
 const args = process.argv.slice(2);
+let monitorEverything = false;
 
 let allIP = require('./libraries/data.json').allIP;
 let interval_to_call = require('./libraries/data.json').interval_to_call;
@@ -13,6 +15,7 @@ let file_name = require('./libraries/data.json').file_name;
 if (args.includes('-h')) {
     console.log(`Usage: script.js [options]
 Options:
+-e                   Monitor Everything (Including server, master, Towers and all nodes)
 -ip <allIP>          Set allIP (default: ${allIP})
 -i <interval>        Set interval_to_call (default: ${interval_to_call})
 -cv <cacheValues>    Set cache_values_before_writing (default: ${cache_values_before_writing})
@@ -24,13 +27,16 @@ Options:
 // Parse optional parameters
 for (let i = 0; i < args.length; i++) {
     if (args[i] === '-ip') {
-        allIP = JSON.parse(args[i + 1]);
+        allIP = args[i + 1];
     } else if (args[i] === '-i') {
         interval_to_call = args[i + 1];
     } else if (args[i] === '-cv') {
         cache_values_before_writing = args[i + 1];
     } else if (args[i] === '-f') {
         file_name = args[i + 1];
+    } else if (args[i] === '-e') {
+        monitorEverything = true;
+        allIP = require('./libraries/data.json').allIPEverything;
     }
 }
 const global_env = { allIP, interval_to_call, cache_values_before_writing, file_name }
@@ -50,7 +56,10 @@ const writeToCSV = (pwr) => {
     };
 
     const writeHeader = () => {
-        const header = 'timestamp,description,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20\n';
+
+        let header = '';
+        monitorEverything ? header = 'timestamp,description,server,switch,master,T1,T2,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20\n' : header = 'timestamp,description,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20\n';
+
         fs.writeFile(global_env.file_name, header, (err) => {
             if (err) {
                 console.error('Error writing header to file:', err);

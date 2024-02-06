@@ -3,6 +3,7 @@ var pwr = [];
 
 module.exports = {
     power_data: async (callback, allIP, interval) => {
+        // console.log(allIP);
         setInterval(() => {
             const getCurl = async (i) => {
                 var url = `http://${allIP[i]}/sensor/athom_smart_plug_v2_power`;
