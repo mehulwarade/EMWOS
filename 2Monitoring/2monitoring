@@ -43,6 +43,13 @@ const global_env = { allIP, interval_to_call, cache_values_before_writing, file_
 
 // console.log(global_env.allIP);
 
+// Backup the file if it already exists
+if (fs.existsSync(global_env.file_name)) {
+    const backupFileName = `${global_env.file_name}.bak`;
+    fs.copyFileSync(global_env.file_name, backupFileName);
+    console.log(`Backup created: ${backupFileName}`);
+}
+
 
 let csvData = ``;
 let headerWritten = false;

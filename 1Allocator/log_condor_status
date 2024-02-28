@@ -1,0 +1,17 @@
+<192.168.5.51:9618?addrs=192.168.5.51-9618&alias=alpha&noUDP&sock=master_351_55d4>
+<192.168.5.52:9618?addrs=192.168.5.52-9618&alias=bravo&noUDP&sock=master_352_056d>
+<192.168.5.53:9618?addrs=192.168.5.53-9618&alias=charlie&noUDP&sock=master_356_c3ce>
+<192.168.5.54:9618?addrs=192.168.5.54-9618&alias=delta&noUDP&sock=master_351_55d4>
+<192.168.5.55:9618?addrs=192.168.5.55-9618&alias=echo&noUDP&sock=master_349_f6a4>
+<192.168.5.56:9618?addrs=192.168.5.56-9618&alias=foxtrot&noUDP&sock=master_347_9774>
+<192.168.5.57:9618?addrs=192.168.5.57-9618&alias=golf&noUDP&sock=master_354_649d>
+<192.168.5.58:9618?addrs=192.168.5.58-9618&alias=hotel&noUDP&sock=master_360_822f>
+<192.168.5.61:9618?addrs=192.168.5.61-9618&alias=kilo&noUDP&sock=master_345_3843>
+<192.168.5.62:9618?addrs=192.168.5.62-9618&alias=lima&noUDP&sock=master_351_55d4>
+<192.168.5.10:9618?addrs=192.168.5.10-9618&alias=master&noUDP&sock=master_359_d296>
+<192.168.5.63:9618?addrs=192.168.5.63-9618&alias=mike&noUDP&sock=master_345_3843>
+<192.168.5.64:9618?addrs=192.168.5.64-9618&alias=november&noUDP&sock=master_350_a63c>
+<192.168.5.65:9618?addrs=192.168.5.65-9618&alias=oscar&noUDP&sock=master_357_7366>
+<192.168.5.66:9618?addrs=192.168.5.66-9618&alias=papa&noUDP&sock=master_360_822f>
+<192.168.5.67:9618?addrs=192.168.5.67-9618&alias=quebec&noUDP&sock=master_357_7366>
+<192.168.5.68:9618?addrs=192.168.5.68-9618&alias=romeo&noUDP&sock=master_344_88ab>
