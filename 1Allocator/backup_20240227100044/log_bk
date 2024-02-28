@@ -1,0 +1,9 @@
+getCondorStatus - Return Code: 0
+Log: 
+Error: 
+....
+OffCondorDaemon - Return Code: 0
+Log: Sent "Kill-Daemon" command for "startd" to startd at <192.168.5.68:9618>
+
+Error: [sudo] password for mehul: 
+....

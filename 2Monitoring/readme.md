@@ -15,3 +15,19 @@ Execute the script `test.js` with various arguments:
 
 ### File_name can be absolute as follows:
 ./test.js -f ~/shared_fs/abc.csv
+
+
+### Features:
+- Backup of exhisting file
+- 2 modes -> -e everything mode (measure switch, server, master and towers) and normal mode
+- different intervals using -i flag
+- customizable filename/ file path
+- check for the plugs are alive or dead ./1check
+
+### How to use:
+
+./0RunBackground.sh ./2monitoring -e -i 1000 -f customeFile.csv
+
+To kill the pid:
+
+xargs kill < background_process.pid
