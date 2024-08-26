@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# ./0RunBackground.sh ./moni    
+# ./0RunBackground.sh ./2monitoring -e -i 1000 -f test.csv
 
 # Check if command-line argument is provided
 if [ -z "$1" ]; then
