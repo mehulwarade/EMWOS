@@ -1,0 +1,2 @@
+2024-08-28 03:31:45 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f run51-normal-16n-dag-remove-PostPrioRetryVars.csv
+2024-08-28 03:44:42 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f run51-normal-16n-dag-remove-PostPrioRetryVars.csv
