@@ -140,7 +140,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                     response = json.dumps({"status": "released"})
                     self.wfile.write(response.encode('utf-8'))
                 else:
-                    self.send_response(400)  # Changed from 404 to 400
+                    self.send_response(200)  # Changed from 404 to 200. should not be successfull but it is.
                     self.send_header('Content-type', 'application/json')
                     self.end_headers()
                     response = json.dumps({"error": "No resource found for the specified job"})
