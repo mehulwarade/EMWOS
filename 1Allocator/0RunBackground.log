@@ -1,3 +1,10 @@
 2024-09-04 00:14:52 - Command: ./0RunBackground.sh ./background-allocator-daemon.py
 2024-09-04 00:18:08 - Command: ./0RunBackground.sh ./background-allocator-daemon.py
 2024-09-04 00:25:07 - Command: ./0RunBackground.sh -c ./background-allocator-daemon.py
+2024-09-04 05:24:21 - Command: ./0RunBackground.sh -c ./background-allocator-daemon.py
+2024-09-04 05:25:21 - Command: ./0RunBackground.sh -c ./background-allocator-daemon.py
+2024-09-04 05:38:09 - Command: ./0RunBackground.sh -c echo hahahaha
+2024-09-04 05:39:29 - Command: ./0RunBackground.sh -c ./background-allocator-daemon.py
+2024-09-04 05:50:26 - Command: ./0RunBackground.sh -c ./background
+2024-09-04 05:50:30 - Command: ./0RunBackground.sh -c ./background-allocator-daemon.py
+2024-09-04 05:51:11 - Command: ./0RunBackground.sh -c ./background-allocator-daemon.py
