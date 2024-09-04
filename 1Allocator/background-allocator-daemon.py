@@ -106,7 +106,11 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/allocate':
             job = data.get('job')
             if not job:
-                self.send_error(400, "Job not specified")
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                response = json.dumps({"error": "Job not specified"})
+                self.wfile.write(response.encode('utf-8'))
                 logging.error("Allocation request received without job specified")
                 return
             
@@ -118,7 +122,12 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 response = json.dumps({"resource": resource})
                 self.wfile.write(response.encode('utf-8'))
             else:
-                self.send_error(404, "No available resources")
+                self.send_response(503)  # 503 Service Unavailable
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                response = json.dumps({"error": "No resources available"})
+                self.wfile.write(response.encode('utf-8'))
+                logging.info("No resources available. Sent 503 response.")
 
         elif self.path == '/release':
             job = data.get('job')
@@ -131,12 +140,25 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                     response = json.dumps({"status": "released"})
                     self.wfile.write(response.encode('utf-8'))
                 else:
-                    self.send_error(404, "No resource found for the specified job")
+                    self.send_response(400)  # Changed from 404 to 400
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    response = json.dumps({"error": "No resource found for the specified job"})
+                    self.wfile.write(response.encode('utf-8'))
+                    logging.warning(f"Attempt to release non-existent job: {job}")
             else:
-                self.send_error(400, "Job not specified")
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                response = json.dumps({"error": "Job not specified"})
+                self.wfile.write(response.encode('utf-8'))
                 logging.error("Release request received without job specified")
         else:
-            self.send_error(404, "Endpoint not found")
+            self.send_response(404)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response = json.dumps({"error": "Endpoint not found"})
+            self.wfile.write(response.encode('utf-8'))
             logging.warning(f"Request to unknown endpoint: {self.path}")
 
         total, used, available = self.resource_manager.get_resource_status()
@@ -155,8 +177,21 @@ def signal_handler(signum, frame):
     logging.info("Server stopped")
     sys.exit(0)
 
+def sanity_check():
+    with open(RESOURCES_FILE, 'r') as f:
+        for line in f:
+            parts = line.strip().split(',')
+            if len(parts) > 2 and parts[2]:  # If there's a job allocated
+                logging.error("Sanity check failed: Jobs are already allocated in resources.txt")
+                print("ERROR: Jobs are already allocated in resources.txt. Please check and clear any allocated jobs before starting the server.")
+                sys.exit(1)
+    logging.info("Sanity check passed: No jobs allocated in resources.txt")
+
 if __name__ == "__main__":
     logging.info("Starting EMWOS Resource Allocation Server")
+
+    # Perform sanity check
+    sanity_check()
 
     # Write PID to file
     with open(PID_FILE, 'w') as f:
