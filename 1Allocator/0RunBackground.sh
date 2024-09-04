@@ -30,23 +30,6 @@ generate_output_filename() {
     echo "${timestamp}_${script_basename}_${background_job_name}.out"
 }
 
-# Function to check if resources are available
-check_resources() {
-    local resources_file="resources.txt"
-    if [ ! -f "$resources_file" ]; then
-        echo "Resources file not found. Creating an empty one."
-        touch "$resources_file"
-        return 0
-    fi
-
-    if [ -s "$resources_file" ]; then
-        echo "Error: Resources are currently in use. Please wait for the current job to finish."
-        return 1
-    fi
-
-    return 0
-}
-
 # Store original arguments
 ORIGINAL_ARGS="$@"
 
@@ -76,19 +59,11 @@ if [ $# -eq 0 ]; then
     exit 0
 fi
 
-# Check resources
-if ! check_resources; then
-    exit 1
-fi
-
 # Log the command execution
 log_command
 
 # Generate the output filename
 output_file=$(generate_output_filename "$1")
-
-# Write job information to resources file
-echo "$$ - $output_file" > resources.txt
 
 if [ "$capture_output" = true ]; then
     # Run the command with nohup, send it to the background, and capture output
@@ -105,9 +80,3 @@ echo "Process started in the background with PID: $!"
 if [ "$capture_output" = true ]; then
     echo "Output is being captured in $output_file"
 fi
-
-# Clean up resources file when the job is done
-(
-    wait $!
-    echo "" > resources.txt
-) &
