@@ -1,1 +1,1 @@
-xargs kill < background_process.pid
+xargs kill < .background_process.pid

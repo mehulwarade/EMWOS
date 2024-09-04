@@ -35,6 +35,6 @@ log_command "$@"
 nohup "$@" >/dev/null 2>&1 &
 
 # Store the PID of the background process into a file
-echo $! > background_process.pid
+echo $! > .background_process.pid
 
 echo "Process started in the background with PID: $!"
