@@ -1,5 +1,0 @@
-1725426391, post, haha, release, , failed (HTTP 400) {"error": "No resource found for the specified job"}
-1725426415, pre, haha, allocate, slot1@alpha, successful after 0 retries
-1725426415, pre, haha, update, slot1@alpha, successful updated submit file
-1725426419, post, haha, release, , successful 
-1725426422, post, haha, release, , failed (HTTP 400) {"error": "No resource found for the specified job"}
