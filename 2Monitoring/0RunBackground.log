@@ -10,3 +10,4 @@
 2024-08-29 21:31:00 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f run58.csv
 2024-09-04 05:39:13 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f run59.csv
 2024-09-04 10:58:13 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f run61.csv
+2024-09-04 12:59:35 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f run61.csv
