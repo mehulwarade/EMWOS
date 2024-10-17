@@ -22,3 +22,5 @@
 2024-09-11 11:16:51 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f run69.csv
 2024-09-19 10:16:08 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f mwf1.csv
 2024-09-20 08:46:22 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f mwf2.csv
+2024-09-22 02:10:24 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f mwf2.csv
+2024-09-24 02:02:24 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f mwf3.csv
