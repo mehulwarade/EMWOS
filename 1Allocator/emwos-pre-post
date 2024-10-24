@@ -1,0 +1,162 @@
+#!/usr/bin/env node
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+// Constants
+const SERVER_HOST = 'localhost';
+const SERVER_PORT = 8000;
+const LOG_FILE = 'emwos-pre-post.log';
+
+// Function to log messages
+function logMessage(action, jobName, operation, resource, status, additionalInfo = '') {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const logEntry = `${timestamp}, ${action}, ${jobName}, ${operation}, ${resource}, ${status}, ${additionalInfo}\n`;
+    fs.appendFileSync(LOG_FILE, logEntry);
+}
+
+// Function to check if a job should be skipped
+function shouldSkipJob(jobName) {
+    return jobName.startsWith('create_') || jobName.startsWith('stage_in_') || jobName.startsWith('stage_out_');
+}
+
+// Function to update the submit file
+function updateSubmitFile(submitFile, resource) {
+    const content = fs.readFileSync(submitFile, 'utf8');
+    const updatedContent = content.replace(/^requirements.*$/m, `requirements = (Name == "${resource}")`);
+    fs.writeFileSync(submitFile, updatedContent);
+}
+
+// Function to send request to server
+function sendRequest(action, jobName, preference = null) {
+    return new Promise((resolve, reject) => {
+        const path = action === 'pre'
+            ? `/allocate/${jobName}/${preference}`
+            : `/release/${jobName}`;
+
+        const options = {
+            hostname: SERVER_HOST,
+            port: SERVER_PORT,
+            path: path,
+            method: 'GET'
+        };
+        const startTime = process.hrtime();
+        const req = http.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            res.on('end', () => {
+                const endTime = process.hrtime(startTime);
+                const timeInMs = (endTime[0] * 1000) + (endTime[1] / 1000000);
+                logMessage(action, jobName, 'api-request', '', 'successful', `Received response code ${res.statusCode} from api. I waited for ${timeInMs.toFixed(2)} milliseconds for response.`);
+                if (res.statusCode === 200) {
+                    resolve(JSON.parse(data));
+                } else {
+                    reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+                }
+            });
+        });
+
+        req.on('error', (error) => {
+            reject(error);
+        });
+
+        req.end();
+    });
+}
+
+// Function to run pegasus-exitcode command
+function runPegasusExitcode(submitFile) {
+    const jobName = path.basename(submitFile, '.sub');
+    const dirName = path.dirname(submitFile);
+    const outFile = path.join(dirName, `${jobName}.out`);
+    const metaFile = path.join(dirName, `${jobName}.meta`);
+    // * Step 1: Check if output file exists
+    if (!fs.existsSync(outFile)) {
+        throw new Error(`Output file not found: ${outFile}`);
+    }
+    // * Step 2: run pegasus-exitcode and generate the meta file
+    try {
+        const output = execSync(`pegasus-exitcode ${outFile}`, { encoding: 'utf8' });
+        // return output.trim();
+    } catch (error) {
+        throw new Error(`pegasus-exitcode failed: ${error.message}`);
+    }
+    // * Step 3: Check for metadata file
+    if (!fs.existsSync(metaFile)) {
+        throw new Error(`Metadata file not found: ${metaFile}`);
+    }
+}
+
+async function main() {
+    if (process.argv.length < 4 || process.argv.length > 5) {
+        console.error("Error: Two or three arguments are required.");
+        console.error("Usage: node script.js <pre|post> <submit_file> [preference]");
+        process.exit(1);
+    }
+
+    const action = process.argv[2];
+    const submitFile = process.argv[3];
+    const preference = process.argv[4] || 'balanced';
+
+    if (action !== 'pre' && action !== 'post') {
+        console.error("Error: First argument must be 'pre' or 'post'.");
+        process.exit(1);
+    }
+
+    if (!submitFile.endsWith('.sub')) {
+        console.error("Error: Second argument must be a .sub file.");
+        process.exit(1);
+    }
+
+    if (!['performance', 'energy', 'balanced'].includes(preference)) {
+        console.error("Error: Invalid preference. Must be 'performance', 'energy', or 'balanced'.");
+        process.exit(1);
+    }
+
+    if (!fs.existsSync(submitFile)) {
+        console.error(`Error: Submit file '${submitFile}' does not exist.`);
+        process.exit(1);
+    }
+
+    const jobName = path.basename(submitFile, '.sub');
+
+    try {
+        if (action === 'pre') {
+            // Todo: refactor the skip job function
+            if (shouldSkipJob(jobName)) {
+                logMessage(action, jobName, 'skip', '', 'skipped', `removing for job type at path: ${submitFile}`);
+                process.exit(0);
+            }
+            
+            const result = await sendRequest(action, jobName, preference);
+            const resource = result.resource;
+            updateSubmitFile(submitFile, resource);
+            logMessage(action, jobName, 'allocate', resource, 'successful', 'updated submit file');
+        } else {
+            // ! to fix. pegasus-exitcode not working in creating the meta file
+            // Run pegasus-exitcode for post action
+            try {
+                const exitcodeOutput = runPegasusExitcode(submitFile);
+                logMessage(action, jobName, 'pegasus-exitcode', '', 'successful', exitcodeOutput);
+            } catch (exitcodeError) {
+                logMessage(action, jobName, 'pegasus-exitcode', '', 'failed', exitcodeError.message);
+            }
+            // Todo: refactor the skip job function
+            if (shouldSkipJob(jobName)) {
+                logMessage(action, jobName, 'skip', '', 'skipped', `sending post release request for job type at path: ${submitFile}`);
+                process.exit(0);
+            }
+            await sendRequest(action, jobName);
+            logMessage(action, jobName, 'release', '', 'successful');
+        }
+    } catch (error) {
+        logMessage(action, jobName, action === 'pre' ? 'allocate' : 'release', '', 'failed', error.message);
+        console.error(`Error: ${error.message}`);
+        process.exit(1);
+    }
+}
+
+main();

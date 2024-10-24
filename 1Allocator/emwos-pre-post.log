@@ -1,0 +1,6 @@
+1729807381, pre, test, allocate, , failed connect ECONNREFUSED 127.0.0.1:8000
+1729807417, pre, test, api-request, , successful Received response code 200 from api. I waited for 19.83 milliseconds for response.
+1729807417, pre, test, allocate, slot1@alpha,i7, successful updated submit file
+1729807483, pre, test, api-request, , successful Received response code 200 from api. I waited for 20.12 milliseconds for response.
+1729807483, pre, test, allocate, slot1@alpha, successful updated submit file
+1729807537, pre, test, allocate, , failed, connect ECONNREFUSED 127.0.0.1:8000
