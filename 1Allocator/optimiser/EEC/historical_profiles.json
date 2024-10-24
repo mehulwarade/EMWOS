@@ -1,0 +1,36 @@
+{
+  "mProject": {
+    "alphai7": [
+      {
+        "duration": 5.005273,
+        "total_energy": 162.5,
+        "avg_cpu_load": 31.25,
+        "timestamp": "2024-10-24T12:13:40.837573"
+      }
+    ],
+    "romeoi5": [
+      {
+        "duration": 5.005179,
+        "total_energy": 137.5,
+        "avg_cpu_load": 31.25,
+        "timestamp": "2024-10-24T12:13:45.843154"
+      }
+    ],
+    "rpi4": [
+      {
+        "duration": 5.005257,
+        "total_energy": 37.5,
+        "avg_cpu_load": 31.25,
+        "timestamp": "2024-10-24T12:13:50.848746"
+      }
+    ],
+    "master": [
+      {
+        "duration": 5.005186,
+        "total_energy": 112.5,
+        "avg_cpu_load": 31.25,
+        "timestamp": "2024-10-24T12:13:55.854299"
+      }
+    ]
+  }
+}
