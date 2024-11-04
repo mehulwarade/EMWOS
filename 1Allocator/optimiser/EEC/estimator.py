@@ -5,7 +5,7 @@ import os
 from models import EnergyEstimate
 
 # Add parent directory to Python path for importing ect_function
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append('../ECT/')
 from ect_function import ect
 
 def prepare_historical_data_for_ect(historical_data: Dict) -> Dict:
