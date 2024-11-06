@@ -1,0 +1,396 @@
+######################################################################
+# PEGASUS WMS GENERATED DAG FILE
+# DAG 1000-genome
+# Index = 0, Count = null
+######################################################################
+MAXJOBS cleanup 4
+MAXJOBS registration 1
+MAXJOBS stageout 10
+MAXJOBS stagein 10
+
+JOB create_dir_1000-genome_0_local 00/00/create_dir_1000-genome_0_local.sub
+SCRIPT POST create_dir_1000-genome_0_local /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/create_dir_1000-genome_0_local.out
+PRIORITY create_dir_1000-genome_0_local 800
+RETRY create_dir_1000-genome_0_local 1
+VARS create_dir_1000-genome_0_local My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_in_remote_local_2_0 00/00/stage_in_remote_local_2_0.sub
+SCRIPT POST stage_in_remote_local_2_0 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_in_remote_local_2_0.out
+PRIORITY stage_in_remote_local_2_0 700
+RETRY stage_in_remote_local_2_0 1
+CATEGORY stage_in_remote_local_2_0 stagein
+VARS stage_in_remote_local_2_0 My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_in_remote_local_0_1 00/00/stage_in_remote_local_0_1.sub
+SCRIPT POST stage_in_remote_local_0_1 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_in_remote_local_0_1.out
+PRIORITY stage_in_remote_local_0_1 699
+RETRY stage_in_remote_local_0_1 1
+CATEGORY stage_in_remote_local_0_1 stagein
+VARS stage_in_remote_local_0_1 My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_in_remote_local_1_0 00/00/stage_in_remote_local_1_0.sub
+SCRIPT POST stage_in_remote_local_1_0 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_in_remote_local_1_0.out
+PRIORITY stage_in_remote_local_1_0 700
+RETRY stage_in_remote_local_1_0 1
+CATEGORY stage_in_remote_local_1_0 stagein
+VARS stage_in_remote_local_1_0 My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_in_remote_local_0_0 00/00/stage_in_remote_local_0_0.sub
+SCRIPT POST stage_in_remote_local_0_0 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_in_remote_local_0_0.out
+PRIORITY stage_in_remote_local_0_0 700
+RETRY stage_in_remote_local_0_0 1
+CATEGORY stage_in_remote_local_0_0 stagein
+VARS stage_in_remote_local_0_0 My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_in_local_local_0_0 00/00/stage_in_local_local_0_0.sub
+SCRIPT POST stage_in_local_local_0_0 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_in_local_local_0_0.out
+PRIORITY stage_in_local_local_0_0 700
+RETRY stage_in_local_local_0_0 1
+CATEGORY stage_in_local_local_0_0 stagein
+VARS stage_in_local_local_0_0 My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_in_local_local_0_1 00/00/stage_in_local_local_0_1.sub
+SCRIPT POST stage_in_local_local_0_1 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_in_local_local_0_1.out
+PRIORITY stage_in_local_local_0_1 699
+RETRY stage_in_local_local_0_1 1
+CATEGORY stage_in_local_local_0_1 stagein
+VARS stage_in_local_local_0_1 My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_in_local_local_2_0 00/00/stage_in_local_local_2_0.sub
+SCRIPT POST stage_in_local_local_2_0 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_in_local_local_2_0.out
+PRIORITY stage_in_local_local_2_0 700
+RETRY stage_in_local_local_2_0 1
+CATEGORY stage_in_local_local_2_0 stagein
+VARS stage_in_local_local_2_0 My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_in_local_local_2_1 00/00/stage_in_local_local_2_1.sub
+SCRIPT POST stage_in_local_local_2_1 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_in_local_local_2_1.out
+PRIORITY stage_in_local_local_2_1 699
+RETRY stage_in_local_local_2_1 1
+CATEGORY stage_in_local_local_2_1 stagein
+VARS stage_in_local_local_2_1 My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_in_remote_local_2_1 00/00/stage_in_remote_local_2_1.sub
+SCRIPT POST stage_in_remote_local_2_1 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_in_remote_local_2_1.out
+PRIORITY stage_in_remote_local_2_1 699
+RETRY stage_in_remote_local_2_1 1
+CATEGORY stage_in_remote_local_2_1 stagein
+VARS stage_in_remote_local_2_1 My.DAGNodeRetry="$(RETRY)"
+
+JOB sifting_ID0000012 00/00/sifting_ID0000012.sub
+SCRIPT POST sifting_ID0000012 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/sifting_ID0000012.out
+PRIORITY sifting_ID0000012 20
+RETRY sifting_ID0000012 1
+VARS sifting_ID0000012 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_ID0000004 00/00/individuals_ID0000004.sub
+SCRIPT POST individuals_ID0000004 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_ID0000004.out
+PRIORITY individuals_ID0000004 20
+RETRY individuals_ID0000004 1
+VARS individuals_ID0000004 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_ID0000005 00/00/individuals_ID0000005.sub
+SCRIPT POST individuals_ID0000005 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_ID0000005.out
+PRIORITY individuals_ID0000005 20
+RETRY individuals_ID0000005 1
+VARS individuals_ID0000005 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_ID0000006 00/00/individuals_ID0000006.sub
+SCRIPT POST individuals_ID0000006 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_ID0000006.out
+PRIORITY individuals_ID0000006 20
+RETRY individuals_ID0000006 1
+VARS individuals_ID0000006 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_ID0000007 00/00/individuals_ID0000007.sub
+SCRIPT POST individuals_ID0000007 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_ID0000007.out
+PRIORITY individuals_ID0000007 20
+RETRY individuals_ID0000007 1
+VARS individuals_ID0000007 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_ID0000001 00/00/individuals_ID0000001.sub
+SCRIPT POST individuals_ID0000001 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_ID0000001.out
+PRIORITY individuals_ID0000001 20
+RETRY individuals_ID0000001 1
+VARS individuals_ID0000001 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_ID0000002 00/00/individuals_ID0000002.sub
+SCRIPT POST individuals_ID0000002 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_ID0000002.out
+PRIORITY individuals_ID0000002 20
+RETRY individuals_ID0000002 1
+VARS individuals_ID0000002 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_ID0000003 00/00/individuals_ID0000003.sub
+SCRIPT POST individuals_ID0000003 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_ID0000003.out
+PRIORITY individuals_ID0000003 20
+RETRY individuals_ID0000003 1
+VARS individuals_ID0000003 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_ID0000010 00/00/individuals_ID0000010.sub
+SCRIPT POST individuals_ID0000010 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_ID0000010.out
+PRIORITY individuals_ID0000010 20
+RETRY individuals_ID0000010 1
+VARS individuals_ID0000010 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_ID0000008 00/00/individuals_ID0000008.sub
+SCRIPT POST individuals_ID0000008 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_ID0000008.out
+PRIORITY individuals_ID0000008 20
+RETRY individuals_ID0000008 1
+VARS individuals_ID0000008 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_ID0000009 00/00/individuals_ID0000009.sub
+SCRIPT POST individuals_ID0000009 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_ID0000009.out
+PRIORITY individuals_ID0000009 20
+RETRY individuals_ID0000009 1
+VARS individuals_ID0000009 My.DAGNodeRetry="$(RETRY)"
+
+JOB individuals_merge_ID0000011 00/00/individuals_merge_ID0000011.sub
+SCRIPT POST individuals_merge_ID0000011 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/individuals_merge_ID0000011.out
+PRIORITY individuals_merge_ID0000011 30
+RETRY individuals_merge_ID0000011 1
+VARS individuals_merge_ID0000011 My.DAGNodeRetry="$(RETRY)"
+
+JOB frequency_ID0000024 00/00/frequency_ID0000024.sub
+SCRIPT POST frequency_ID0000024 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/frequency_ID0000024.out
+PRIORITY frequency_ID0000024 40
+RETRY frequency_ID0000024 1
+VARS frequency_ID0000024 My.DAGNodeRetry="$(RETRY)"
+
+JOB frequency_ID0000014 00/00/frequency_ID0000014.sub
+SCRIPT POST frequency_ID0000014 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/frequency_ID0000014.out
+PRIORITY frequency_ID0000014 40
+RETRY frequency_ID0000014 1
+VARS frequency_ID0000014 My.DAGNodeRetry="$(RETRY)"
+
+JOB frequency_ID0000026 00/00/frequency_ID0000026.sub
+SCRIPT POST frequency_ID0000026 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/frequency_ID0000026.out
+PRIORITY frequency_ID0000026 40
+RETRY frequency_ID0000026 1
+VARS frequency_ID0000026 My.DAGNodeRetry="$(RETRY)"
+
+JOB frequency_ID0000016 00/00/frequency_ID0000016.sub
+SCRIPT POST frequency_ID0000016 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/frequency_ID0000016.out
+PRIORITY frequency_ID0000016 40
+RETRY frequency_ID0000016 1
+VARS frequency_ID0000016 My.DAGNodeRetry="$(RETRY)"
+
+JOB mutation_overlap_ID0000021 00/00/mutation_overlap_ID0000021.sub
+SCRIPT POST mutation_overlap_ID0000021 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/mutation_overlap_ID0000021.out
+PRIORITY mutation_overlap_ID0000021 40
+RETRY mutation_overlap_ID0000021 1
+VARS mutation_overlap_ID0000021 My.DAGNodeRetry="$(RETRY)"
+
+JOB frequency_ID0000020 00/00/frequency_ID0000020.sub
+SCRIPT POST frequency_ID0000020 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/frequency_ID0000020.out
+PRIORITY frequency_ID0000020 40
+RETRY frequency_ID0000020 1
+VARS frequency_ID0000020 My.DAGNodeRetry="$(RETRY)"
+
+JOB frequency_ID0000022 00/00/frequency_ID0000022.sub
+SCRIPT POST frequency_ID0000022 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/frequency_ID0000022.out
+PRIORITY frequency_ID0000022 40
+RETRY frequency_ID0000022 1
+VARS frequency_ID0000022 My.DAGNodeRetry="$(RETRY)"
+
+JOB mutation_overlap_ID0000017 00/00/mutation_overlap_ID0000017.sub
+SCRIPT POST mutation_overlap_ID0000017 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/mutation_overlap_ID0000017.out
+PRIORITY mutation_overlap_ID0000017 40
+RETRY mutation_overlap_ID0000017 1
+VARS mutation_overlap_ID0000017 My.DAGNodeRetry="$(RETRY)"
+
+JOB mutation_overlap_ID0000019 00/00/mutation_overlap_ID0000019.sub
+SCRIPT POST mutation_overlap_ID0000019 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/mutation_overlap_ID0000019.out
+PRIORITY mutation_overlap_ID0000019 40
+RETRY mutation_overlap_ID0000019 1
+VARS mutation_overlap_ID0000019 My.DAGNodeRetry="$(RETRY)"
+
+JOB mutation_overlap_ID0000013 00/00/mutation_overlap_ID0000013.sub
+SCRIPT POST mutation_overlap_ID0000013 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/mutation_overlap_ID0000013.out
+PRIORITY mutation_overlap_ID0000013 40
+RETRY mutation_overlap_ID0000013 1
+VARS mutation_overlap_ID0000013 My.DAGNodeRetry="$(RETRY)"
+
+JOB mutation_overlap_ID0000023 00/00/mutation_overlap_ID0000023.sub
+SCRIPT POST mutation_overlap_ID0000023 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/mutation_overlap_ID0000023.out
+PRIORITY mutation_overlap_ID0000023 40
+RETRY mutation_overlap_ID0000023 1
+VARS mutation_overlap_ID0000023 My.DAGNodeRetry="$(RETRY)"
+
+JOB frequency_ID0000018 00/00/frequency_ID0000018.sub
+SCRIPT POST frequency_ID0000018 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/frequency_ID0000018.out
+PRIORITY frequency_ID0000018 40
+RETRY frequency_ID0000018 1
+VARS frequency_ID0000018 My.DAGNodeRetry="$(RETRY)"
+
+JOB mutation_overlap_ID0000015 00/00/mutation_overlap_ID0000015.sub
+SCRIPT POST mutation_overlap_ID0000015 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/mutation_overlap_ID0000015.out
+PRIORITY mutation_overlap_ID0000015 40
+RETRY mutation_overlap_ID0000015 1
+VARS mutation_overlap_ID0000015 My.DAGNodeRetry="$(RETRY)"
+
+JOB mutation_overlap_ID0000025 00/00/mutation_overlap_ID0000025.sub
+SCRIPT POST mutation_overlap_ID0000025 /usr/bin/pegasus-exitcode  -r $RETURN -s PegasusLite:+exitcode+0 -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/mutation_overlap_ID0000025.out
+PRIORITY mutation_overlap_ID0000025 40
+RETRY mutation_overlap_ID0000025 1
+VARS mutation_overlap_ID0000025 My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_out_local_local_2_0 00/00/stage_out_local_local_2_0.sub
+SCRIPT POST stage_out_local_local_2_0 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_out_local_local_2_0.out
+PRIORITY stage_out_local_local_2_0 900
+RETRY stage_out_local_local_2_0 1
+CATEGORY stage_out_local_local_2_0 stageout
+VARS stage_out_local_local_2_0 My.DAGNodeRetry="$(RETRY)"
+
+JOB stage_out_local_local_2_1 00/00/stage_out_local_local_2_1.sub
+SCRIPT POST stage_out_local_local_2_1 /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/stage_out_local_local_2_1.out
+PRIORITY stage_out_local_local_2_1 900
+RETRY stage_out_local_local_2_1 1
+CATEGORY stage_out_local_local_2_1 stageout
+VARS stage_out_local_local_2_1 My.DAGNodeRetry="$(RETRY)"
+
+JOB cleanup_1000-genome_0_local 00/00/cleanup_1000-genome_0_local.sub
+SCRIPT POST cleanup_1000-genome_0_local /usr/bin/pegasus-exitcode  -r $RETURN -l 1000-genome-0.exitcode.log -M 1000-genome-0.cache.meta   .//00/00/cleanup_1000-genome_0_local.out
+PRIORITY cleanup_1000-genome_0_local 1000
+RETRY cleanup_1000-genome_0_local 1
+VARS cleanup_1000-genome_0_local My.DAGNodeRetry="$(RETRY)"
+
+PARENT  stage_in_remote_local_2_0 CHILD frequency_ID0000024
+PARENT  stage_in_remote_local_2_0 CHILD frequency_ID0000014
+PARENT  stage_in_remote_local_2_0 CHILD frequency_ID0000026
+PARENT  stage_in_remote_local_2_0 CHILD frequency_ID0000016
+PARENT  stage_in_remote_local_2_0 CHILD frequency_ID0000020
+PARENT  stage_in_remote_local_2_0 CHILD frequency_ID0000022
+PARENT  stage_in_remote_local_2_0 CHILD frequency_ID0000018
+PARENT  stage_in_remote_local_0_1 CHILD sifting_ID0000012
+PARENT  stage_in_remote_local_1_0 CHILD individuals_merge_ID0000011
+PARENT  stage_in_remote_local_0_0 CHILD individuals_ID0000004
+PARENT  stage_in_remote_local_0_0 CHILD individuals_ID0000005
+PARENT  stage_in_remote_local_0_0 CHILD individuals_ID0000006
+PARENT  stage_in_remote_local_0_0 CHILD individuals_ID0000007
+PARENT  stage_in_remote_local_0_0 CHILD individuals_ID0000001
+PARENT  stage_in_remote_local_0_0 CHILD individuals_ID0000002
+PARENT  stage_in_remote_local_0_0 CHILD individuals_ID0000003
+PARENT  stage_in_remote_local_0_0 CHILD individuals_ID0000010
+PARENT  stage_in_remote_local_0_0 CHILD individuals_ID0000008
+PARENT  stage_in_remote_local_0_0 CHILD individuals_ID0000009
+PARENT  stage_in_local_local_0_0 CHILD frequency_ID0000024
+PARENT  stage_in_local_local_0_0 CHILD frequency_ID0000026
+PARENT  stage_in_local_local_0_0 CHILD mutation_overlap_ID0000021
+PARENT  stage_in_local_local_0_0 CHILD frequency_ID0000020
+PARENT  stage_in_local_local_0_0 CHILD frequency_ID0000022
+PARENT  stage_in_local_local_0_0 CHILD individuals_ID0000010
+PARENT  stage_in_local_local_0_0 CHILD sifting_ID0000012
+PARENT  stage_in_local_local_0_0 CHILD mutation_overlap_ID0000023
+PARENT  stage_in_local_local_0_0 CHILD mutation_overlap_ID0000025
+PARENT  stage_in_local_local_0_0 CHILD individuals_ID0000004
+PARENT  stage_in_local_local_0_0 CHILD individuals_ID0000005
+PARENT  stage_in_local_local_0_0 CHILD individuals_ID0000006
+PARENT  stage_in_local_local_0_0 CHILD individuals_ID0000007
+PARENT  stage_in_local_local_0_0 CHILD individuals_ID0000001
+PARENT  stage_in_local_local_0_0 CHILD individuals_ID0000002
+PARENT  stage_in_local_local_0_0 CHILD individuals_ID0000003
+PARENT  stage_in_local_local_0_0 CHILD individuals_ID0000008
+PARENT  stage_in_local_local_0_0 CHILD individuals_ID0000009
+PARENT  stage_in_local_local_0_0 CHILD frequency_ID0000014
+PARENT  stage_in_local_local_0_0 CHILD frequency_ID0000016
+PARENT  stage_in_local_local_0_0 CHILD mutation_overlap_ID0000017
+PARENT  stage_in_local_local_0_0 CHILD mutation_overlap_ID0000019
+PARENT  stage_in_local_local_0_0 CHILD mutation_overlap_ID0000013
+PARENT  stage_in_local_local_0_0 CHILD frequency_ID0000018
+PARENT  stage_in_local_local_0_0 CHILD mutation_overlap_ID0000015
+PARENT  stage_in_local_local_0_1 CHILD individuals_ID0000004
+PARENT  stage_in_local_local_0_1 CHILD individuals_ID0000005
+PARENT  stage_in_local_local_0_1 CHILD individuals_ID0000006
+PARENT  stage_in_local_local_0_1 CHILD individuals_ID0000007
+PARENT  stage_in_local_local_0_1 CHILD individuals_ID0000001
+PARENT  stage_in_local_local_0_1 CHILD individuals_ID0000002
+PARENT  stage_in_local_local_0_1 CHILD individuals_ID0000003
+PARENT  stage_in_local_local_0_1 CHILD individuals_ID0000010
+PARENT  stage_in_local_local_0_1 CHILD individuals_ID0000008
+PARENT  stage_in_local_local_0_1 CHILD individuals_ID0000009
+PARENT  stage_in_local_local_2_0 CHILD frequency_ID0000024
+PARENT  stage_in_local_local_2_0 CHILD frequency_ID0000026
+PARENT  stage_in_local_local_2_0 CHILD mutation_overlap_ID0000021
+PARENT  stage_in_local_local_2_0 CHILD frequency_ID0000022
+PARENT  stage_in_local_local_2_0 CHILD mutation_overlap_ID0000017
+PARENT  stage_in_local_local_2_0 CHILD mutation_overlap_ID0000023
+PARENT  stage_in_local_local_2_0 CHILD frequency_ID0000018
+PARENT  stage_in_local_local_2_0 CHILD mutation_overlap_ID0000025
+PARENT  stage_in_local_local_2_1 CHILD frequency_ID0000014
+PARENT  stage_in_local_local_2_1 CHILD frequency_ID0000016
+PARENT  stage_in_local_local_2_1 CHILD frequency_ID0000020
+PARENT  stage_in_local_local_2_1 CHILD mutation_overlap_ID0000019
+PARENT  stage_in_local_local_2_1 CHILD mutation_overlap_ID0000013
+PARENT  stage_in_local_local_2_1 CHILD mutation_overlap_ID0000015
+PARENT  frequency_ID0000024 CHILD stage_out_local_local_2_0
+PARENT  frequency_ID0000026 CHILD stage_out_local_local_2_0
+PARENT  mutation_overlap_ID0000021 CHILD stage_out_local_local_2_0
+PARENT  frequency_ID0000020 CHILD stage_out_local_local_2_1
+PARENT  frequency_ID0000022 CHILD stage_out_local_local_2_0
+PARENT  individuals_ID0000010 CHILD individuals_merge_ID0000011
+PARENT  sifting_ID0000012 CHILD frequency_ID0000024
+PARENT  sifting_ID0000012 CHILD frequency_ID0000014
+PARENT  sifting_ID0000012 CHILD frequency_ID0000026
+PARENT  sifting_ID0000012 CHILD frequency_ID0000016
+PARENT  sifting_ID0000012 CHILD mutation_overlap_ID0000021
+PARENT  sifting_ID0000012 CHILD frequency_ID0000020
+PARENT  sifting_ID0000012 CHILD frequency_ID0000022
+PARENT  sifting_ID0000012 CHILD mutation_overlap_ID0000017
+PARENT  sifting_ID0000012 CHILD mutation_overlap_ID0000019
+PARENT  sifting_ID0000012 CHILD mutation_overlap_ID0000013
+PARENT  sifting_ID0000012 CHILD mutation_overlap_ID0000023
+PARENT  sifting_ID0000012 CHILD frequency_ID0000018
+PARENT  sifting_ID0000012 CHILD mutation_overlap_ID0000015
+PARENT  sifting_ID0000012 CHILD mutation_overlap_ID0000025
+PARENT  mutation_overlap_ID0000023 CHILD stage_out_local_local_2_0
+PARENT  mutation_overlap_ID0000025 CHILD stage_out_local_local_2_1
+PARENT  stage_in_remote_local_2_1 CHILD mutation_overlap_ID0000021
+PARENT  stage_in_remote_local_2_1 CHILD mutation_overlap_ID0000017
+PARENT  stage_in_remote_local_2_1 CHILD mutation_overlap_ID0000019
+PARENT  stage_in_remote_local_2_1 CHILD mutation_overlap_ID0000013
+PARENT  stage_in_remote_local_2_1 CHILD mutation_overlap_ID0000023
+PARENT  stage_in_remote_local_2_1 CHILD mutation_overlap_ID0000015
+PARENT  stage_in_remote_local_2_1 CHILD mutation_overlap_ID0000025
+PARENT  individuals_ID0000004 CHILD individuals_merge_ID0000011
+PARENT  individuals_ID0000005 CHILD individuals_merge_ID0000011
+PARENT  individuals_ID0000006 CHILD individuals_merge_ID0000011
+PARENT  individuals_ID0000007 CHILD individuals_merge_ID0000011
+PARENT  individuals_ID0000001 CHILD individuals_merge_ID0000011
+PARENT  stage_out_local_local_2_1 CHILD cleanup_1000-genome_0_local
+PARENT  individuals_ID0000002 CHILD individuals_merge_ID0000011
+PARENT  stage_out_local_local_2_0 CHILD cleanup_1000-genome_0_local
+PARENT  individuals_ID0000003 CHILD individuals_merge_ID0000011
+PARENT  individuals_ID0000008 CHILD individuals_merge_ID0000011
+PARENT  individuals_ID0000009 CHILD individuals_merge_ID0000011
+PARENT  frequency_ID0000014 CHILD stage_out_local_local_2_1
+PARENT  frequency_ID0000016 CHILD stage_out_local_local_2_1
+PARENT  mutation_overlap_ID0000017 CHILD stage_out_local_local_2_1
+PARENT  create_dir_1000-genome_0_local CHILD stage_in_remote_local_2_0
+PARENT  create_dir_1000-genome_0_local CHILD stage_in_remote_local_0_1
+PARENT  create_dir_1000-genome_0_local CHILD stage_in_remote_local_1_0
+PARENT  create_dir_1000-genome_0_local CHILD stage_in_remote_local_0_0
+PARENT  create_dir_1000-genome_0_local CHILD stage_in_local_local_0_0
+PARENT  create_dir_1000-genome_0_local CHILD stage_in_local_local_0_1
+PARENT  create_dir_1000-genome_0_local CHILD stage_in_local_local_2_0
+PARENT  create_dir_1000-genome_0_local CHILD stage_in_local_local_2_1
+PARENT  create_dir_1000-genome_0_local CHILD stage_in_remote_local_2_1
+PARENT  mutation_overlap_ID0000019 CHILD stage_out_local_local_2_0
+PARENT  mutation_overlap_ID0000013 CHILD stage_out_local_local_2_1
+PARENT  frequency_ID0000018 CHILD stage_out_local_local_2_1
+PARENT  individuals_merge_ID0000011 CHILD frequency_ID0000024
+PARENT  individuals_merge_ID0000011 CHILD frequency_ID0000014
+PARENT  individuals_merge_ID0000011 CHILD frequency_ID0000026
+PARENT  individuals_merge_ID0000011 CHILD frequency_ID0000016
+PARENT  individuals_merge_ID0000011 CHILD mutation_overlap_ID0000021
+PARENT  individuals_merge_ID0000011 CHILD frequency_ID0000020
+PARENT  individuals_merge_ID0000011 CHILD frequency_ID0000022
+PARENT  individuals_merge_ID0000011 CHILD mutation_overlap_ID0000017
+PARENT  individuals_merge_ID0000011 CHILD mutation_overlap_ID0000019
+PARENT  individuals_merge_ID0000011 CHILD mutation_overlap_ID0000013
+PARENT  individuals_merge_ID0000011 CHILD mutation_overlap_ID0000023
+PARENT  individuals_merge_ID0000011 CHILD frequency_ID0000018
+PARENT  individuals_merge_ID0000011 CHILD mutation_overlap_ID0000015
+PARENT  individuals_merge_ID0000011 CHILD mutation_overlap_ID0000025
+PARENT  mutation_overlap_ID0000015 CHILD stage_out_local_local_2_0
+######################################################################
+# End of DAG
+######################################################################
