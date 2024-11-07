@@ -1,0 +1,109 @@
+[
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "poss2ukstu_ir_006_001.fits",
+   "id": 1,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "ipac", "url": "http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_ir&r=54.962501&d=23.089456&e=J2000&w=42.60&h=42.60&f=fits&c=gz", "priority": 10 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./poss2ukstu_ir_006_001.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "poss2ukstu_ir_003_003.fits",
+   "id": 2,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "ipac", "url": "http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_ir&r=56.591670&d=24.098851&e=J2000&w=42.60&h=42.60&f=fits&c=gz", "priority": 10 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./poss2ukstu_ir_003_003.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "poss2ukstu_ir_003_004.fits",
+   "id": 3,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "ipac", "url": "http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_ir&r=56.591247&d=24.598828&e=J2000&w=42.60&h=42.60&f=fits&c=gz", "priority": 10 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./poss2ukstu_ir_003_004.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "poss2ukstu_blue_001_006.fits",
+   "id": 4,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "ipac", "url": "http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_blue&r=57.698697&d=25.595083&e=J2000&w=42.60&h=42.60&f=fits&c=gz", "priority": 10 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./poss2ukstu_blue_001_006.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "poss2ukstu_blue_004_001.fits",
+   "id": 5,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "ipac", "url": "http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_blue&r=56.049021&d=23.097629&e=J2000&w=42.60&h=42.60&f=fits&c=gz", "priority": 10 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./poss2ukstu_blue_004_001.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "poss2ukstu_blue_004_003.fits",
+   "id": 6,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "ipac", "url": "http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_blue&r=56.043959&d=24.097489&e=J2000&w=42.60&h=42.60&f=fits&c=gz", "priority": 10 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./poss2ukstu_blue_004_003.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "poss2ukstu_red_001_006.fits",
+   "id": 7,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "ipac", "url": "http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_red&r=57.698697&d=25.595083&e=J2000&w=42.60&h=42.60&f=fits&c=gz", "priority": 10 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./poss2ukstu_red_001_006.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "poss2ukstu_red_003_006.fits",
+   "id": 8,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "ipac", "url": "http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_red&r=56.590391&d=25.598433&e=J2000&w=42.60&h=42.60&f=fits&c=gz", "priority": 10 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./poss2ukstu_red_003_006.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "poss2ukstu_red_005_006.fits",
+   "id": 9,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "ipac", "url": "http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_red&r=55.482166&d=25.593431&e=J2000&w=42.60&h=42.60&f=fits&c=gz", "priority": 10 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./poss2ukstu_red_005_006.fits" }
+   ] }
+]

@@ -1,0 +1,73 @@
+[
+ { "type": "transfer",
+   "linkage": "output",
+   "lfn": "3-mosaic_area.fits",
+   "id": 1,
+   "verify_checksum_remote": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./3-mosaic_area.fits" }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/output/3-mosaic_area.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "output",
+   "lfn": "3-mosaic.fits",
+   "id": 2,
+   "verify_checksum_remote": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./3-mosaic.fits" }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/output/3-mosaic.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "output",
+   "lfn": "1-mosaic.fits",
+   "id": 3,
+   "verify_checksum_remote": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./1-mosaic.fits" }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/output/1-mosaic.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "output",
+   "lfn": "1-mosaic_area.fits",
+   "id": 4,
+   "verify_checksum_remote": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./1-mosaic_area.fits" }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/output/1-mosaic_area.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "output",
+   "lfn": "2-mosaic.fits",
+   "id": 5,
+   "verify_checksum_remote": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./2-mosaic.fits" }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/output/2-mosaic.fits" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "output",
+   "lfn": "2-mosaic_area.fits",
+   "id": 6,
+   "verify_checksum_remote": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./2-mosaic_area.fits" }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/output/2-mosaic_area.fits" }
+   ] }
+]

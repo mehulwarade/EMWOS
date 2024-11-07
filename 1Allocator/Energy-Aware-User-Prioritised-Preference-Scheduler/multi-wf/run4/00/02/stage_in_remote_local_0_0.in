@@ -1,0 +1,13 @@
+[
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "region-oversized.hdr",
+   "id": 1,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:///home/mehul/shared_fs/montage/data/region-oversized.hdr", "priority": 100 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./region-oversized.hdr" }
+   ] }
+]
