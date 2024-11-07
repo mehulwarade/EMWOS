@@ -60,36 +60,33 @@ function initializeResources() {
     }
 }
 
-// Function to find the job with the smallest execution number
+// Function to find the next job to schedule
 function NextJobToSchedule() {
     if (jobQueue.length === 0) return null;
-
-    // Find job with smallest execution number
-    let smallestExecJob = jobQueue[0];
-    let smallestExecIndex = 0;
-
-    for (let i = 1; i < jobQueue.length; i++) {
-        if (jobQueue[i].executionNumber < smallestExecJob.executionNumber) {
-            smallestExecJob = jobQueue[i];
-            smallestExecIndex = i;
-        }
-    }
-
-    // If the job with smallest execution number is not at the front of the queue
-    if (smallestExecIndex !== 0) {
-        log(`Note: Job ${jobQueue[0].name} is next in queue, but scheduling ${smallestExecJob.name} first as it has lower execution number (${smallestExecJob.executionNumber} vs ${jobQueue[0].executionNumber})`);
-    }
-
-    // Remove the job from the queue and return it
-    jobQueue.splice(smallestExecIndex, 1);
-    return smallestExecJob;
+    return jobQueue.shift();
 }
 
 // Function to find an available resource based on job preference
 function NextResourceAvailable(jobPreference) {
     return resources.find(resource => !allocatedResources.has(resource));
+    if (jobPreference === 'performance') {
+        // Allocate resources with 'alpha' for performance
+        return resources.find(resource => !allocatedResources.has(resource) && resource.includes('alpha'));
+    } else if (jobPreference === 'energy') {
+        // Allocate resources with 'charlie' for energy efficiency
+        return resources.find(resource => !allocatedResources.has(resource) && resource.includes('charlie'));
+    } else {
+        // For 'balanced' or no preference, use any available resource
+        return resources.find(resource => !allocatedResources.has(resource));
+    }
 }
 
+// Todo: Function - Next schedule. return the next job and resource pair for scheduling. can implement optimisation here. initially return the next job and the next available resource.
+function nextSchedule(){
+    
+}
+
+// Function to process the job queue
 function processQueue() {
     let processedJobs = new Set();
     let allocatedThisRound = false;
@@ -99,6 +96,7 @@ function processQueue() {
         allocatedThisRound = false;
 
         for (let i = 0; i < initialQueueLength; i++) {
+            // TODO: in future instead of next job, we can find the job and resource simultaneously.
             const nextJob = NextJobToSchedule();
             if (!nextJob) break;
 
@@ -109,23 +107,20 @@ function processQueue() {
                 const res = pendingRequests.get(nextJob.name);
                 if (res) {
                     res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({
-                        resource: availableResource,
-                        job: nextJob.name,
-                        executionNumber: nextJob.executionNumber
-                    }));
+                    res.end(JSON.stringify({ resource: availableResource, job: nextJob.name, preference: nextJob.preference || 'none' }));
                     pendingRequests.delete(nextJob.name);
-                    log(`Resource ${availableResource} allocated to job ${nextJob.name} (execution number: ${nextJob.executionNumber})`);
+                    log(`Resource ${availableResource} allocated to job ${nextJob.name}${nextJob.preference ? ` with preference ${nextJob.preference}` : ''}`);
                 }
                 processedJobs.add(nextJob.name);
                 allocatedThisRound = true;
             } else {
                 // If no suitable resource, put the job back at the end of the queue
                 jobQueue.push(nextJob);
-                log(`No suitable resources available for job ${nextJob.name} (execution number: ${nextJob.executionNumber}). Moved to end of queue.`);
+                log(`No suitable resources available for job ${nextJob.name}${nextJob.preference ? ` with preference ${nextJob.preference}` : ''}. Moved to end of queue.`);
             }
         }
 
+        // If we've gone through the entire queue without making any allocations, break the loop
         if (!allocatedThisRound) {
             log("No more allocations possible. Ending queue processing.");
             break;
@@ -141,7 +136,7 @@ function releaseResource(jobName) {
         if (job === jobName) {
             allocatedResources.delete(resource);
             log(`Resource ${resource} released from job ${jobName}`);
-            processQueue();
+            processQueue(); // Try to allocate resources to queued jobs
             return resource;
         }
     }
@@ -154,25 +149,22 @@ const server = http.createServer((req, res) => {
 
     if (path[1] === 'allocate' && path[2]) {
         const jobName = path[2];
-        const executionNumber = parseInt(path[3]);
+        const preference = path[3];
+        log(`Received allocation request for job ${jobName}${preference ? ` with preference ${preference}` : ''}`);
 
-        if (isNaN(executionNumber)) {
-            log(`Error: Invalid execution number for job ${jobName}`);
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: `Invalid execution number for job ${jobName}` }));
-            return;
-        }
-
-        log(`Received allocation request for job ${jobName} with execution number ${executionNumber}`);
-
+        // Check if job is already allocated
         if (Array.from(allocatedResources.values()).includes(jobName)) {
             log(`Error: Job ${jobName} is already allocated a resource`);
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: `Job ${jobName} is already allocated a resource` }));
+        } else if (preference && !['energy', 'performance', 'balanced'].includes(preference)) {
+            log(`Error: Invalid preference ${preference} for job ${jobName}`);
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: `Invalid preference ${preference}` }));
         } else {
-            jobQueue.push({ name: jobName, executionNumber: executionNumber });
+            jobQueue.push({ name: jobName, preference: preference });
             pendingRequests.set(jobName, res);
-            log(`Job ${jobName} added to queue with execution number ${executionNumber}`);
+            log(`Job ${jobName} added to queue${preference ? ` with preference ${preference}` : ''}`);
             processQueue();
         }
     } else if (path[1] === 'release' && path[2]) {
