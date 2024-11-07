@@ -1,5 +1,120 @@
 #!/usr/bin/env python3
-# Multi workflow HEFT - MEHUL
+
+"""
+Multi-DAG HEFT Scheduler for EMWOS Workflow Management System
+
+This script implements a multi-workflow scheduler using the Heterogeneous Earliest Finish Time (HEFT)
+algorithm with support for workflow preferences and resource allocation.
+
+Features:
+---------
+1. Multi-workflow support:
+   - Process multiple workflows simultaneously
+   - Assign preferences (performance/balanced/energy) to each workflow
+   - Handle dependencies within and across workflows
+
+2. HEFT Implementation:
+   - Calculate upward rank for task prioritization
+   - Consider communication costs and execution times
+   - Resource-aware scheduling
+   - Dependency-aware scheduling
+
+3. Preference-based Scheduling:
+   - Performance-oriented workflows get priority
+   - Balanced workflows scheduled second
+   - Energy-efficient workflows scheduled last
+   - Within each preference level, use HEFT ranking
+
+Usage:
+-----
+python3 scheduler.py --resources <resource_file> \
+    -workflow <workflow_folder1> <preference1> \
+    -workflow <workflow_folder2> <preference2> \
+    --output <output_file>
+
+Arguments:
+---------
+--resources : Path to resource definition file
+--output   : Path for output schedule file (CSV)
+-workflow  : Workflow folder path and preference (can be specified multiple times)
+
+Preferences:
+----------
+- performance: Highest priority, scheduled first
+- balanced: Medium priority, scheduled second
+- energy: Lowest priority, scheduled last
+
+Input Requirements:
+----------------
+1. Resource File:
+   - One resource per line
+   - Each resource should be a valid execution node
+
+2. Workflow Folders:
+   - Must contain exactly one .dag file
+   - DAG file should follow HTCondor DAGMan syntax
+   - Jobs in DAG should map to defined job types
+
+Job Type Definitions:
+------------------
+Predefined job types with execution and communication costs:
+- create_dir_montage: Directory creation jobs
+- stage_in/stage_out: Data staging jobs
+- mProject: Image projection
+- mDiffFit: Image difference and fitting
+- mConcatFit: Result concatenation
+- mBgModel: Background model computation
+- mBackground: Background correction
+- mImgtbl: Image table creation
+- mAdd: Image addition
+- mViewer: Image visualization
+
+Output:
+------
+1. CSV Schedule File:
+   - execution_number: Order of execution (1 to N)
+   - workflow_id: Identifier for the workflow
+   - workflow_folder_path: Absolute path to workflow folder
+   - job_name: Name of the job from DAG
+   - preference: Workflow preference level
+   - assigned_resource: Allocated resource
+   - estimated_start: Expected start time
+   - estimated_finish: Expected finish time
+   - upward_rank: HEFT rank value
+
+2. Summary File:
+   - Total number of jobs
+   - Total dependencies
+   - Makespan (total execution time)
+   - List of processed workflows
+
+Error Handling:
+-------------
+- Validates resource file existence and content
+- Checks for DAG file presence in workflow folders
+- Validates workflow preferences
+- Reports parsing errors for DAG files
+- Creates detailed error messages
+
+Dependencies:
+-----------
+Standard Python libraries:
+- argparse: Command line argument parsing
+- os: File and path operations
+- csv: CSV file handling
+- sys: System-specific parameters
+- glob: File pattern matching
+- typing: Type hints
+- dataclasses: Data class decorators
+- collections: Specialized container datatypes
+- pathlib: Object-oriented filesystem paths
+
+Authors:
+-------
+Created for EMWOS Workflow Management System by Mehul Warade
+Nodember 7, 2024
+"""
+
 import argparse
 import os
 import csv
