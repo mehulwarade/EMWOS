@@ -1,0 +1,49 @@
+[
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "3-images.tbl",
+   "id": 1,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:///home/mehul/shared_fs/montage/data/3-images.tbl", "priority": 100 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./3-images.tbl" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "mBgModel",
+   "id": 2,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:///home/mehul/shared_fs/montage-x86-binaries/mBgModel", "priority": 100 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./mBgModel" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "1-images.tbl",
+   "id": 3,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:///home/mehul/shared_fs/montage/data/1-images.tbl", "priority": 100 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./1-images.tbl" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "2-images.tbl",
+   "id": 4,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:///home/mehul/shared_fs/montage/data/2-images.tbl", "priority": 100 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./2-images.tbl" }
+   ] }
+]

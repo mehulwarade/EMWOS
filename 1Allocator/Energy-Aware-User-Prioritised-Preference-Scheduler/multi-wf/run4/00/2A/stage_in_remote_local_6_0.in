@@ -1,0 +1,25 @@
+[
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "region.hdr",
+   "id": 1,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:///home/mehul/shared_fs/montage/data/region.hdr", "priority": 100 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./region.hdr" }
+   ] }
+ ,
+ { "type": "transfer",
+   "linkage": "input",
+   "lfn": "mAdd",
+   "id": 2,
+   "generate_checksum": true,
+   "src_urls": [
+     { "site_label": "local", "url": "file:///home/mehul/shared_fs/montage-x86-binaries/mAdd", "priority": 100 }
+   ],
+   "dest_urls": [
+     { "site_label": "local", "url": "file:////home/mehul/shared_fs/montage/data/wf-scratch/LOCAL/mehul/pegasus/montage/run0085/./mAdd" }
+   ] }
+]
