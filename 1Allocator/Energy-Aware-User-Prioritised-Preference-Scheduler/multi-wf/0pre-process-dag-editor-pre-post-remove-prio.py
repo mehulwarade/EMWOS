@@ -193,8 +193,8 @@ def edit_dag_file(dag_file, job_exec_numbers, remove_priority):
                             print(f"Warning: Submit file not found: {abs_submit_path}")
                     
                     outfile.write(line)
-                    outfile.write(f"SCRIPT PRE {current_job} emwos-pre-post.sh pre {submit_file} {exec_num}\n")
-                    outfile.write(f"SCRIPT POST {current_job} emwos-pre-post.sh post {submit_file} {exec_num}\n")
+                    outfile.write(f"SCRIPT PRE {current_job} emwos-pre-post pre {submit_file} {exec_num}\n")
+                    outfile.write(f"SCRIPT POST {current_job} emwos-pre-post post {submit_file} {exec_num}\n")
                 
                 elif line.startswith('SCRIPT POST '):
                     # Skip the old POST line

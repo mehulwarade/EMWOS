@@ -25,4 +25,6 @@
 2024-09-05 04:44:04 - Command: ./0RunBackground.sh -c ./background-allocator-daemon.py
 2024-09-05 06:43:37 - Command: ./0RunBackground.sh -c ./background-allocator-daemon.py
 2024-09-05 08:39:44 - Command: ./0RunBackground.sh -c ./background-allocator-daemon.py
-2024-10-10 13:54:33 - Command: ./0RunBackground.sh node allocator.js
+2024-10-10 13:54:33 - Command: ./0RunBackground.sh -c node allocator.js
+2024-11-07 13:21:35 - Command: ./0RunBackground.sh -c node allocator.js
+2024-11-07 13:22:14 - Command: ./0RunBackground.sh -c node emwos-allocator.js
