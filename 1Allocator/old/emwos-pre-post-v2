@@ -1,19 +1,6 @@
 #!/usr/bin/env node
 
-/**
- * EMWOS Pre/Post Script for Job Execution
- * 
- * This script handles the pre and post execution tasks for EMWOS jobs:
- * - PRE: Allocates resources and updates submit files
- * - POST: Releases resources and validates job execution
- * 
- * Usage:
- * ./emwos-pre-post.sh <pre|post> <submit_file> <execution_number>
- * 
- * Example:
- * ./emwos-pre-post.sh pre /path/to/job.sub 42
- * ./emwos-pre-post.sh post /path/to/job.sub 42
- */
+// script [pre | post] [submit file location]
 
 const http = require('http');
 const fs = require('fs');
@@ -45,10 +32,10 @@ function updateSubmitFile(submitFile, resource) {
 }
 
 // Function to send request to server
-function sendRequest(action, jobName, executionNumber = null) {
+function sendRequest(action, jobName, preference = null) {
     return new Promise((resolve, reject) => {
         const path = action === 'pre'
-            ? `/allocate/${jobName}/${executionNumber}`
+            ? `/allocate/${jobName}/${preference}`
             : `/release/${jobName}`;
 
         const options = {
@@ -66,8 +53,7 @@ function sendRequest(action, jobName, executionNumber = null) {
             res.on('end', () => {
                 const endTime = process.hrtime(startTime);
                 const timeInMs = (endTime[0] * 1000) + (endTime[1] / 1000000);
-                logMessage(action, jobName, 'api-request', '', 'successful',
-                    `Received response code ${res.statusCode} from api. I waited for ${timeInMs.toFixed(2)} milliseconds for response.`);
+                logMessage(action, jobName, 'api-request', '', 'successful', `Received response code ${res.statusCode} from api. I waited for ${timeInMs.toFixed(2)} milliseconds for response.`);
                 if (res.statusCode === 200) {
                     resolve(JSON.parse(data));
                 } else {
@@ -108,15 +94,15 @@ function runPegasusExitcode(submitFile) {
 }
 
 async function main() {
-    if (process.argv.length !== 5) {
-        console.error("Error: Three arguments are required.");
-        console.error("Usage: node script.js <pre|post> <submit_file> <execution_number>");
+    if (process.argv.length < 4 || process.argv.length > 5) {
+        console.error("Error: Two or three arguments are required.");
+        console.error("Usage: node script.js <pre|post> <submit_file> [preference]");
         process.exit(1);
     }
 
     const action = process.argv[2];
     const submitFile = process.argv[3];
-    const executionNumber = process.argv[4];
+    const preference = process.argv[4] || 'balanced';
 
     if (action !== 'pre' && action !== 'post') {
         console.error("Error: First argument must be 'pre' or 'post'.");
@@ -128,8 +114,8 @@ async function main() {
         process.exit(1);
     }
 
-    if (isNaN(executionNumber) || parseInt(executionNumber) <= 0) {
-        console.error("Error: Third argument must be a positive number (execution number).");
+    if (!['performance', 'energy', 'balanced'].includes(preference)) {
+        console.error("Error: Invalid preference. Must be 'performance', 'energy', or 'balanced'.");
         process.exit(1);
     }
 
@@ -142,29 +128,32 @@ async function main() {
 
     try {
         if (action === 'pre') {
+            // Todo: refactor the skip job function
             if (shouldSkipJob(jobName)) {
                 logMessage(action, jobName, 'skip', '', 'skipped', `removing for job type at path: ${submitFile}`);
                 process.exit(0);
             }
-
-            const result = await sendRequest(action, jobName, executionNumber);
+            
+            const result = await sendRequest(action, jobName, preference);
             const resource = result.resource;
             updateSubmitFile(submitFile, resource);
-            logMessage(action, jobName, 'allocate', resource, 'successful', `updated submit file (execution ${executionNumber})`);
+            logMessage(action, jobName, 'allocate', resource, 'successful', 'updated submit file');
         } else {
+            // ! to fix. pegasus-exitcode not working in creating the meta file
+            // Run pegasus-exitcode for post action
             try {
                 const exitcodeOutput = runPegasusExitcode(submitFile);
                 logMessage(action, jobName, 'pegasus-exitcode', '', 'successful', exitcodeOutput);
             } catch (exitcodeError) {
                 logMessage(action, jobName, 'pegasus-exitcode', '', 'failed', exitcodeError.message);
             }
-
+            // Todo: refactor the skip job function
             if (shouldSkipJob(jobName)) {
                 logMessage(action, jobName, 'skip', '', 'skipped', `sending post release request for job type at path: ${submitFile}`);
                 process.exit(0);
             }
             await sendRequest(action, jobName);
-            logMessage(action, jobName, 'release', '', 'successful', `completed execution ${executionNumber}`);
+            logMessage(action, jobName, 'release', '', 'successful');
         }
     } catch (error) {
         logMessage(action, jobName, action === 'pre' ? 'allocate' : 'release', '', 'failed', error.message);
