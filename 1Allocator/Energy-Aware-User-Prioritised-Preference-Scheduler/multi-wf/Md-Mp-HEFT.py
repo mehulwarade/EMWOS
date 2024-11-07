@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Multi-DAG HEFT Scheduler for EMWOS Workflow Management System
+Multi-DAG Multi-Preference HEFT Scheduler for EMWOS Workflow Management System
 
 This script implements a multi-workflow scheduler using the Heterogeneous Earliest Finish Time (HEFT)
 algorithm with support for workflow preferences and resource allocation.
