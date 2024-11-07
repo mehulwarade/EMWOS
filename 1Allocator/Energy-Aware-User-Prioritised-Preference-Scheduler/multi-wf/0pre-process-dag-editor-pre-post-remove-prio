@@ -40,9 +40,40 @@ def find_dag_file(workflow_folder):
         print(f"Error accessing workflow folder {workflow_folder}: {e}")
         return None
 
+def remove_priority_from_submit(submit_file):
+    """Remove priority lines from submit files."""
+    try:
+        with open(submit_file, 'r') as f:
+            lines = f.readlines()
+        
+        new_lines = [line for line in lines if not line.strip().startswith('priority')]
+        
+        # Create backup of submit file
+        backup_file = f"{submit_file}.bak"
+        os.rename(submit_file, backup_file)
+        
+        with open(submit_file, 'w') as f:
+            f.writelines(new_lines)
+            
+        print(f"Removed priority from submit file: {submit_file}")
+        print(f"Submit file backup created at: {backup_file}")
+        return True
+    except Exception as e:
+        print(f"Error processing submit file {submit_file}: {e}")
+        return False
+
+def get_absolute_submit_path(dag_dir, submit_file):
+    """Convert submit file path to absolute path."""
+    if os.path.isabs(submit_file):
+        return submit_file
+    return os.path.abspath(os.path.join(dag_dir, submit_file))
+
 def edit_dag_file(dag_file, job_exec_numbers, remove_priority):
     """Edit the DAG file to add PRE/POST scripts with execution numbers."""
     backup_file = f"{dag_file}.bak"
+    dag_dir = os.path.dirname(dag_file)
+    submit_files_processed = set()
+    
     try:
         # Create backup
         os.rename(dag_file, backup_file)
@@ -67,9 +98,20 @@ def edit_dag_file(dag_file, job_exec_numbers, remove_priority):
                     submit_file = parts[2]
                     exec_num = job_exec_numbers.get(current_job, "UNKNOWN")
                     
+                    # Get absolute path of submit file
+                    abs_submit_path = get_absolute_submit_path(dag_dir, submit_file)
+                    
+                    # Remove priority from submit file if needed
+                    if remove_priority and abs_submit_path not in submit_files_processed:
+                        if os.path.exists(abs_submit_path):
+                            if remove_priority_from_submit(abs_submit_path):
+                                submit_files_processed.add(abs_submit_path)
+                        else:
+                            print(f"Warning: Submit file not found: {abs_submit_path}")
+                    
                     outfile.write(line)
-                    outfile.write(f"SCRIPT PRE {current_job} emwos-pre-post pre {submit_file} {exec_num}\n")
-                    outfile.write(f"SCRIPT POST {current_job} emwos-pre-post post {submit_file} {exec_num}\n")
+                    outfile.write(f"SCRIPT PRE {current_job} emwos-pre-post.sh pre {submit_file} {exec_num}\n")
+                    outfile.write(f"SCRIPT POST {current_job} emwos-pre-post.sh post {submit_file} {exec_num}\n")
                 
                 elif line.startswith('SCRIPT POST '):
                     # Skip the old POST line
@@ -81,7 +123,8 @@ def edit_dag_file(dag_file, job_exec_numbers, remove_priority):
                     outfile.write(line)
 
         print(f"Processed DAG file: {dag_file}")
-        print(f"Backup created at: {backup_file}")
+        print(f"DAG file backup created at: {backup_file}")
+        print(f"Processed {len(submit_files_processed)} submit files")
         return True
 
     except Exception as e:
@@ -102,6 +145,7 @@ def process_workflows(schedule_file, remove_priority):
     
     successful = 0
     failed = 0
+    total_submit_files = 0
     
     # Process each workflow
     for workflow_folder, job_exec_numbers in workflow_jobs.items():
@@ -124,7 +168,7 @@ def process_workflows(schedule_file, remove_priority):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Edit DAG files based on schedule to add PRE-POST scripts with execution numbers"
+        description="Edit DAG files and submit files based on schedule to add PRE-POST scripts with execution numbers"
     )
     parser.add_argument(
         '-s', '--schedule',
@@ -134,7 +178,7 @@ def main():
     parser.add_argument(
         '-rm-prio',
         action='store_true',
-        help="Remove PRIORITY lines from the DAG files"
+        help="Remove PRIORITY lines from both DAG and submit files"
     )
     
     args = parser.parse_args()
