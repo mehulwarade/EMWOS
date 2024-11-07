@@ -1,0 +1,194 @@
+#!/usr/bin/env node
+
+const fs = require('fs').promises;
+const path = require('path');
+const http = require('http');
+const { exec } = require('child_process');
+const util = require('util');
+
+// Constants
+const SERVER_URL = "http://localhost:8000";
+const ALLOCATE_ENDPOINT = "/allocate";
+const RELEASE_ENDPOINT = "/release";
+const LOG_FILE = "emwos-pre-post.log";
+
+// Function to log messages
+async function logMessage(action, jobName, operation, resource, status, additionalInfo) {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const logEntry = `${timestamp}, ${action}, ${jobName}, ${operation}, ${resource}, ${status} ${additionalInfo}\n`;
+    await fs.appendFile(LOG_FILE, logEntry);
+}
+
+// Function to check if a job should be skipped
+function shouldSkipJob(jobName) {
+    return jobName.startsWith('create_') || jobName.startsWith('stage_in_') || jobName.startsWith('stage_out_');
+}
+
+// Function to update the submit file
+async function updateSubmitFile(submitFile, resource) {
+    let content = await fs.readFile(submitFile, 'utf8');
+    content = content.replace(/^requirements.*$/m, `requirements = (Name == "${resource}")`);
+    await fs.writeFile(submitFile, content);
+}
+
+// Function to extract resource from JSON response
+function extractResource(json) {
+    const match = json.match(/"resource"\s*:\s*"([^"]*)"/);
+    return match ? match[1] : null;
+}
+
+// Function to send request to server with retries
+function sendRequest(action, jobName) {
+    return new Promise((resolve, reject) => {
+        const endpoint = action === 'pre' ? `${SERVER_URL}${ALLOCATE_ENDPOINT}` : `${SERVER_URL}${RELEASE_ENDPOINT}`;
+        const requestBody = JSON.stringify({ job: jobName });
+
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(requestBody)
+            }
+        };
+
+        const req = http.request(endpoint, options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            res.on('end', () => {
+                if (res.statusCode === 200) {
+                    if (action === 'pre') {
+                        const resource = extractResource(data);
+                        resolve(resource);
+                    } else {
+                        resolve();
+                    }
+                } else {
+                    reject(new Error(`HTTP error! status: ${res.statusCode}`));
+                }
+            });
+        });
+
+        req.on('error', (error) => {
+            reject(error);
+        });
+
+        req.write(requestBody);
+        req.end();
+    });
+}
+
+// Function to check file existence with retries
+async function checkFileExistence(filePath, jobName, fileType) {
+    while (true) {
+        try {
+            await fs.access(filePath);
+            return;
+        } catch (error) {
+            await logMessage("post", jobName, "check", "", "failed", `${fileType} file not found: ${filePath}, retrying`);
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 10000 + 1000));
+        }
+    }
+}
+
+// Function to run pegasus-exitcode with retries
+async function runPegasusExitcode(outFile, jobName) {
+    const execPromise = util.promisify(exec);
+    while (true) {
+        try {
+            await execPromise(`/usr/bin/pegasus-exitcode "${outFile}"`);
+            return;
+        } catch (error) {
+            await logMessage("post", jobName, "check", "", "failed", `pegasus-exitcode failed with status ${error.code}, retrying`);
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 10000 + 1000));
+        }
+    }
+}
+
+// Main function
+async function main() {
+    // Check if arguments are provided
+    if (process.argv.length !== 4) {
+        throw new Error("Usage: ./script [pre or post] [job submit file]\nExample: ./emwos-pre-post pre 00/2A/create_dir_montage_0_local.sub");
+    }
+
+    const ACTION = process.argv[2];
+    const SUBMIT_FILE = process.argv[3];
+
+    // Validate ACTION argument
+    if (ACTION !== 'pre' && ACTION !== 'post') {
+        throw new Error("Error: First argument must be 'pre' or 'post'.");
+    }
+
+    // Validate SUBMIT_FILE argument
+    if (!SUBMIT_FILE.endsWith('.sub')) {
+        throw new Error("Error: Second argument must be a .sub file.");
+    }
+
+    // Check if the submit file exists
+    try {
+        await fs.access(SUBMIT_FILE);
+    } catch (error) {
+        throw new Error(`Error: Submit file '${SUBMIT_FILE}' does not exist.`);
+    }
+
+    const JOB_NAME = path.basename(SUBMIT_FILE, '.sub');
+
+    if (ACTION === 'pre') {
+        if (shouldSkipJob(JOB_NAME)) {
+            await logMessage(ACTION, JOB_NAME, "pre-skip", "", "skipped", `job type at path: ${SUBMIT_FILE}`);
+            return;
+        }
+
+        let retryCount = 0;
+        while (true) {
+            try {
+                const resource = await sendRequest(ACTION, JOB_NAME);
+                if (resource) {
+                    await updateSubmitFile(SUBMIT_FILE, resource);
+                    await logMessage(ACTION, JOB_NAME, "update", resource, "successful", `updated submit file. Took ${retryCount} retries`);
+                    break;
+                } else {
+                    throw new Error("Could not allocate resource");
+                }
+            } catch (error) {
+                const retryDelayRandom = Math.random() * 100 + 100;
+                await logMessage(ACTION, JOB_NAME, "update", "", "failed", `${error.message}, retrying in ${retryDelayRandom} sec`);
+                retryCount++;
+                await new Promise(resolve => setTimeout(resolve, retryDelayRandom));
+            }
+        }
+    } else {
+        const OUT_FILE = SUBMIT_FILE.replace('.sub', '.out');
+        const META_FILE = SUBMIT_FILE.replace('.sub', '.meta');
+
+        await checkFileExistence(OUT_FILE, JOB_NAME, "OUT");
+        await runPegasusExitcode(OUT_FILE, JOB_NAME);
+        await checkFileExistence(META_FILE, JOB_NAME, "META");
+
+        if (shouldSkipJob(JOB_NAME)) {
+            await logMessage(ACTION, JOB_NAME, "post-skip", "", "skipped", `job type at path: ${SUBMIT_FILE}`);
+            return;
+        }
+
+        let retryCount = 0;
+        while (true) {
+            try {
+                await sendRequest(ACTION, JOB_NAME);
+                await logMessage(ACTION, JOB_NAME, "release", "", "successful", `after ${retryCount} retries`);
+                break;
+            } catch (error) {
+                await logMessage(ACTION, JOB_NAME, "release", "", `failed (${error.message})`, "retrying");
+                retryCount++;
+                await new Promise(resolve => setTimeout(resolve, Math.random() * 10000 + 1000));
+            }
+        }
+    }
+}
+
+// Run the main function and handle any errors
+main().catch(error => {
+    console.error(error.message);
+    process.exit(1);
+});

@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+
+// script [pre | post] [submit file location]
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');

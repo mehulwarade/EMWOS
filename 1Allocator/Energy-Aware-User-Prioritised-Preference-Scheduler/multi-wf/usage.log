@@ -1,0 +1,6 @@
+python3 parseDag.py --resources resource.txt run1/1000-genome-0.dag run2/1000-genome-0.dag run3/montage-0.dag run4/montage-0.dag run5/montage-0.dag
+
+python3 schedule.py  --resources resource.txt -dag run1/1000-genome-0.dag performance -dag run2/1000-genome-0.dag energy -dag run3/montage-0.dag balanced -dag run4/montage-0.dag performance -dag run5/montage-0.dag energy --output schedule.txt
+
+
+python3 schedule-csv.py  --resources resource.txt -workflow run1 performance -workflow run2 energy -workflow run3 balanced -workflow run4 performance -workflow run5 energy --output schedule-new.csv
