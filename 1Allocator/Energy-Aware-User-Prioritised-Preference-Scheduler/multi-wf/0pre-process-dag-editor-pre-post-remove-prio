@@ -1,5 +1,88 @@
 #!/usr/bin/env python3
 
+"""
+DAG and Submit File Editor for EMWOS Workflow Scheduling
+
+This script processes workflow DAG files based on a scheduling CSV file to:
+1. Add PRE/POST script commands with execution numbers for each job
+2. Optionally remove priority settings from both DAG and submit files
+3. Create backups of all modified files
+
+Input Requirements:
+-----------------
+1. Schedule CSV file with columns:
+   - workflow_folder_path: Absolute path to the workflow folder
+   - job_name: Name of the job
+   - execution_number: Scheduling order number
+   - [other columns are ignored]
+
+2. Workflow folders containing:
+   - A single .dag file in the root
+   - Submit (.sub) files referenced in the DAG
+
+Operations Performed:
+------------------
+1. For each workflow in the schedule:
+   - Locates the DAG file in the workflow folder
+   - Adds PRE/POST script lines with execution numbers
+   - Removes PRIORITY lines if -rm-prio flag is used
+   - Creates backup as .dag.bak
+
+2. For submit files (if -rm-prio is used):
+   - Removes priority lines from all submit files
+   - Creates backup as .sub.bak
+
+Usage:
+-----
+Basic usage:
+    python3 dag_editor.py -s schedule.csv
+
+Remove priority settings:
+    python3 dag_editor.py -s schedule.csv -rm-prio
+
+Arguments:
+---------
+Required:
+    -s, --schedule    Path to the schedule CSV file
+
+Optional:
+    -rm-prio         Remove priority lines from both DAG and submit files
+
+Example Schedule CSV:
+------------------
+workflow_folder_path,job_name,execution_number
+/path/to/workflow1,job1,1
+/path/to/workflow1,job2,2
+/path/to/workflow2,job1,3
+
+Output:
+-------
+1. Modified DAG files with added PRE/POST scripts:
+   SCRIPT PRE job_name emwos-pre-post.sh pre submit_file.sub execution_number
+   SCRIPT POST job_name emwos-pre-post.sh post submit_file.sub execution_number
+
+2. Backup files:
+   - Original DAG: filename.dag.bak
+   - Original submit files: filename.sub.bak
+
+3. Console output:
+   - Processing status for each workflow
+   - Location of backup files
+   - Summary of successful/failed operations
+
+Error Handling:
+-------------
+- Creates backups before modifications
+- Attempts to restore from backup if errors occur
+- Reports specific errors for each file
+- Non-zero exit code if any workflow fails
+
+Authors:
+-------
+Created for EMWOS Workflow Scheduling System by Mehul Warade
+November 7, 2024
+"""
+
 import sys
 import os
 import argparse
