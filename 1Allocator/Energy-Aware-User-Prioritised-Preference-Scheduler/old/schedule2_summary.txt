@@ -1,0 +1,12 @@
+Schedule Summary:
+----------------------------------------
+Total Jobs: 4452
+Total Dependencies: 29060
+Makespan: 3093.66 seconds
+
+DAG Files Processed:
+dag_4: /home/mehul/shared_fs/EMWOS/1Allocator/Energy-Aware-User-Prioritised-Preference-Scheduler/multi-wf/run4/montage-0.dag
+dag_1: /home/mehul/shared_fs/EMWOS/1Allocator/Energy-Aware-User-Prioritised-Preference-Scheduler/multi-wf/run1/1000-genome-0.dag
+dag_3: /home/mehul/shared_fs/EMWOS/1Allocator/Energy-Aware-User-Prioritised-Preference-Scheduler/multi-wf/run3/montage-0.dag
+dag_5: /home/mehul/shared_fs/EMWOS/1Allocator/Energy-Aware-User-Prioritised-Preference-Scheduler/multi-wf/run5/montage-0.dag
+dag_2: /home/mehul/shared_fs/EMWOS/1Allocator/Energy-Aware-User-Prioritised-Preference-Scheduler/multi-wf/run2/1000-genome-0.dag

@@ -14,3 +14,61 @@
         []
         Pending Requests:
         []
+[11/7/2024, 6:04:27 AM] [1730959467] Resources loaded: slot1@alpha, slot2@alpha, slot3@alpha, slot4@alpha, slot5@alpha, slot6@alpha, slot7@alpha, slot8@alpha, slot1@bravo, slot2@bravo, slot3@bravo, slot4@bravo, slot5@bravo, slot6@bravo, slot7@bravo, slot8@bravo, slot1@charlie, slot2@charlie, slot3@charlie, slot4@charlie, slot5@charlie, slot6@charlie, slot7@charlie, slot8@charlie, slot1@delta, slot2@delta, slot3@delta, slot4@delta, slot5@delta, slot6@delta, slot7@delta, slot8@delta, slot1@echo, slot2@echo, slot3@echo, slot4@echo, slot5@echo, slot6@echo, slot7@echo, slot8@echo, slot1@foxtrot, slot2@foxtrot, slot3@foxtrot, slot4@foxtrot, slot5@foxtrot, slot6@foxtrot, slot7@foxtrot, slot8@foxtrot, slot1@golf, slot2@golf, slot3@golf, slot4@golf, slot5@golf, slot6@golf, slot7@golf, slot8@golf, slot1@hotel, slot2@hotel, slot3@hotel, slot4@hotel, slot5@hotel, slot6@hotel, slot7@hotel, slot8@hotel, slot1@kilo, slot2@kilo, slot3@kilo, slot4@kilo, slot5@kilo, slot6@kilo, slot7@kilo, slot8@kilo, slot1@lima, slot2@lima, slot3@lima, slot4@lima, slot5@lima, slot6@lima, slot7@lima, slot8@lima, slot1@mike, slot2@mike, slot3@mike, slot4@mike, slot5@mike, slot6@mike, slot7@mike, slot8@mike, slot1@november, slot2@november, slot3@november, slot4@november, slot5@november, slot6@november, slot7@november, slot8@november, slot1@oscar, slot2@oscar, slot3@oscar, slot4@oscar, slot5@oscar, slot6@oscar, slot7@oscar, slot8@oscar, slot1@papa, slot2@papa, slot3@papa, slot4@papa, slot5@papa, slot6@papa, slot7@papa, slot8@papa, slot1@quebec, slot2@quebec, slot3@quebec, slot4@quebec, slot5@quebec, slot6@quebec, slot7@quebec, slot8@quebec, slot1@romeo, slot2@romeo, slot3@romeo, slot4@romeo, slot5@romeo, slot6@romeo, slot7@romeo, slot8@romeo
+[11/7/2024, 6:04:27 AM] [1730959467] Server running on port 8000
+[11/7/2024, 6:04:32 AM] [1730959472] Received allocation request for job mProject_ID0000001 with preference balanced
+[11/7/2024, 6:04:32 AM] [1730959472] Job mProject_ID0000001 added to queue with preference balanced
+[11/7/2024, 6:04:32 AM] [1730959472] Resource slot1@alpha allocated to job mProject_ID0000001 with preference balanced
+[11/7/2024, 6:04:32 AM] [1730959472] Current server state: 
+        Overall State:
+        {"totalResources":128,"freeResources":127,"busyResources":1,"jobsInQueue":0,"pendingJobs":0}
+        Available Resources:
+        ["slot2@alpha","slot3@alpha","slot4@alpha","slot5@alpha","slot6@alpha","slot7@alpha","slot8@alpha","slot1@bravo","slot2@bravo","slot3@bravo","slot4@bravo","slot5@bravo","slot6@bravo","slot7@bravo","slot8@bravo","slot1@charlie","slot2@charlie","slot3@charlie","slot4@charlie","slot5@charlie","slot6@charlie","slot7@charlie","slot8@charlie","slot1@delta","slot2@delta","slot3@delta","slot4@delta","slot5@delta","slot6@delta","slot7@delta","slot8@delta","slot1@echo","slot2@echo","slot3@echo","slot4@echo","slot5@echo","slot6@echo","slot7@echo","slot8@echo","slot1@foxtrot","slot2@foxtrot","slot3@foxtrot","slot4@foxtrot","slot5@foxtrot","slot6@foxtrot","slot7@foxtrot","slot8@foxtrot","slot1@golf","slot2@golf","slot3@golf","slot4@golf","slot5@golf","slot6@golf","slot7@golf","slot8@golf","slot1@hotel","slot2@hotel","slot3@hotel","slot4@hotel","slot5@hotel","slot6@hotel","slot7@hotel","slot8@hotel","slot1@kilo","slot2@kilo","slot3@kilo","slot4@kilo","slot5@kilo","slot6@kilo","slot7@kilo","slot8@kilo","slot1@lima","slot2@lima","slot3@lima","slot4@lima","slot5@lima","slot6@lima","slot7@lima","slot8@lima","slot1@mike","slot2@mike","slot3@mike","slot4@mike","slot5@mike","slot6@mike","slot7@mike","slot8@mike","slot1@november","slot2@november","slot3@november","slot4@november","slot5@november","slot6@november","slot7@november","slot8@november","slot1@oscar","slot2@oscar","slot3@oscar","slot4@oscar","slot5@oscar","slot6@oscar","slot7@oscar","slot8@oscar","slot1@papa","slot2@papa","slot3@papa","slot4@papa","slot5@papa","slot6@papa","slot7@papa","slot8@papa","slot1@quebec","slot2@quebec","slot3@quebec","slot4@quebec","slot5@quebec","slot6@quebec","slot7@quebec","slot8@quebec","slot1@romeo","slot2@romeo","slot3@romeo","slot4@romeo","slot5@romeo","slot6@romeo","slot7@romeo","slot8@romeo"]
+        Allocated Resources:
+        {"slot1@alpha":"mProject_ID0000001"}
+        Job Queue:
+        []
+        Pending Requests:
+        []
+[11/7/2024, 6:05:20 AM] [1730959520] Received allocation request for job mProject_ID0000001 with preference balanced
+[11/7/2024, 6:05:20 AM] [1730959520] Error: Job mProject_ID0000001 is already allocated a resource
+[11/7/2024, 6:05:32 AM] [1730959532] Received release request for job mProject_ID0000001
+[11/7/2024, 6:05:32 AM] [1730959532] Resource slot1@alpha released from job mProject_ID0000001
+[11/7/2024, 6:05:32 AM] [1730959532] Current server state: 
+        Overall State:
+        {"totalResources":128,"freeResources":128,"busyResources":0,"jobsInQueue":0,"pendingJobs":0}
+        Available Resources:
+        ["slot1@alpha","slot2@alpha","slot3@alpha","slot4@alpha","slot5@alpha","slot6@alpha","slot7@alpha","slot8@alpha","slot1@bravo","slot2@bravo","slot3@bravo","slot4@bravo","slot5@bravo","slot6@bravo","slot7@bravo","slot8@bravo","slot1@charlie","slot2@charlie","slot3@charlie","slot4@charlie","slot5@charlie","slot6@charlie","slot7@charlie","slot8@charlie","slot1@delta","slot2@delta","slot3@delta","slot4@delta","slot5@delta","slot6@delta","slot7@delta","slot8@delta","slot1@echo","slot2@echo","slot3@echo","slot4@echo","slot5@echo","slot6@echo","slot7@echo","slot8@echo","slot1@foxtrot","slot2@foxtrot","slot3@foxtrot","slot4@foxtrot","slot5@foxtrot","slot6@foxtrot","slot7@foxtrot","slot8@foxtrot","slot1@golf","slot2@golf","slot3@golf","slot4@golf","slot5@golf","slot6@golf","slot7@golf","slot8@golf","slot1@hotel","slot2@hotel","slot3@hotel","slot4@hotel","slot5@hotel","slot6@hotel","slot7@hotel","slot8@hotel","slot1@kilo","slot2@kilo","slot3@kilo","slot4@kilo","slot5@kilo","slot6@kilo","slot7@kilo","slot8@kilo","slot1@lima","slot2@lima","slot3@lima","slot4@lima","slot5@lima","slot6@lima","slot7@lima","slot8@lima","slot1@mike","slot2@mike","slot3@mike","slot4@mike","slot5@mike","slot6@mike","slot7@mike","slot8@mike","slot1@november","slot2@november","slot3@november","slot4@november","slot5@november","slot6@november","slot7@november","slot8@november","slot1@oscar","slot2@oscar","slot3@oscar","slot4@oscar","slot5@oscar","slot6@oscar","slot7@oscar","slot8@oscar","slot1@papa","slot2@papa","slot3@papa","slot4@papa","slot5@papa","slot6@papa","slot7@papa","slot8@papa","slot1@quebec","slot2@quebec","slot3@quebec","slot4@quebec","slot5@quebec","slot6@quebec","slot7@quebec","slot8@quebec","slot1@romeo","slot2@romeo","slot3@romeo","slot4@romeo","slot5@romeo","slot6@romeo","slot7@romeo","slot8@romeo"]
+        Allocated Resources:
+        {}
+        Job Queue:
+        []
+        Pending Requests:
+        []
+[11/7/2024, 6:05:35 AM] [1730959535] Received allocation request for job mProject_ID0000001 with preference balanced
+[11/7/2024, 6:05:35 AM] [1730959535] Job mProject_ID0000001 added to queue with preference balanced
+[11/7/2024, 6:05:35 AM] [1730959535] Resource slot1@alpha allocated to job mProject_ID0000001 with preference balanced
+[11/7/2024, 6:05:35 AM] [1730959535] Current server state: 
+        Overall State:
+        {"totalResources":128,"freeResources":127,"busyResources":1,"jobsInQueue":0,"pendingJobs":0}
+        Available Resources:
+        ["slot2@alpha","slot3@alpha","slot4@alpha","slot5@alpha","slot6@alpha","slot7@alpha","slot8@alpha","slot1@bravo","slot2@bravo","slot3@bravo","slot4@bravo","slot5@bravo","slot6@bravo","slot7@bravo","slot8@bravo","slot1@charlie","slot2@charlie","slot3@charlie","slot4@charlie","slot5@charlie","slot6@charlie","slot7@charlie","slot8@charlie","slot1@delta","slot2@delta","slot3@delta","slot4@delta","slot5@delta","slot6@delta","slot7@delta","slot8@delta","slot1@echo","slot2@echo","slot3@echo","slot4@echo","slot5@echo","slot6@echo","slot7@echo","slot8@echo","slot1@foxtrot","slot2@foxtrot","slot3@foxtrot","slot4@foxtrot","slot5@foxtrot","slot6@foxtrot","slot7@foxtrot","slot8@foxtrot","slot1@golf","slot2@golf","slot3@golf","slot4@golf","slot5@golf","slot6@golf","slot7@golf","slot8@golf","slot1@hotel","slot2@hotel","slot3@hotel","slot4@hotel","slot5@hotel","slot6@hotel","slot7@hotel","slot8@hotel","slot1@kilo","slot2@kilo","slot3@kilo","slot4@kilo","slot5@kilo","slot6@kilo","slot7@kilo","slot8@kilo","slot1@lima","slot2@lima","slot3@lima","slot4@lima","slot5@lima","slot6@lima","slot7@lima","slot8@lima","slot1@mike","slot2@mike","slot3@mike","slot4@mike","slot5@mike","slot6@mike","slot7@mike","slot8@mike","slot1@november","slot2@november","slot3@november","slot4@november","slot5@november","slot6@november","slot7@november","slot8@november","slot1@oscar","slot2@oscar","slot3@oscar","slot4@oscar","slot5@oscar","slot6@oscar","slot7@oscar","slot8@oscar","slot1@papa","slot2@papa","slot3@papa","slot4@papa","slot5@papa","slot6@papa","slot7@papa","slot8@papa","slot1@quebec","slot2@quebec","slot3@quebec","slot4@quebec","slot5@quebec","slot6@quebec","slot7@quebec","slot8@quebec","slot1@romeo","slot2@romeo","slot3@romeo","slot4@romeo","slot5@romeo","slot6@romeo","slot7@romeo","slot8@romeo"]
+        Allocated Resources:
+        {"slot1@alpha":"mProject_ID0000001"}
+        Job Queue:
+        []
+        Pending Requests:
+        []
+[11/7/2024, 6:07:07 AM] [1730959627] Received release request for job mProject_ID0000001
+[11/7/2024, 6:07:07 AM] [1730959627] Resource slot1@alpha released from job mProject_ID0000001
+[11/7/2024, 6:07:07 AM] [1730959627] Current server state: 
+        Overall State:
+        {"totalResources":128,"freeResources":128,"busyResources":0,"jobsInQueue":0,"pendingJobs":0}
+        Available Resources:
+        ["slot1@alpha","slot2@alpha","slot3@alpha","slot4@alpha","slot5@alpha","slot6@alpha","slot7@alpha","slot8@alpha","slot1@bravo","slot2@bravo","slot3@bravo","slot4@bravo","slot5@bravo","slot6@bravo","slot7@bravo","slot8@bravo","slot1@charlie","slot2@charlie","slot3@charlie","slot4@charlie","slot5@charlie","slot6@charlie","slot7@charlie","slot8@charlie","slot1@delta","slot2@delta","slot3@delta","slot4@delta","slot5@delta","slot6@delta","slot7@delta","slot8@delta","slot1@echo","slot2@echo","slot3@echo","slot4@echo","slot5@echo","slot6@echo","slot7@echo","slot8@echo","slot1@foxtrot","slot2@foxtrot","slot3@foxtrot","slot4@foxtrot","slot5@foxtrot","slot6@foxtrot","slot7@foxtrot","slot8@foxtrot","slot1@golf","slot2@golf","slot3@golf","slot4@golf","slot5@golf","slot6@golf","slot7@golf","slot8@golf","slot1@hotel","slot2@hotel","slot3@hotel","slot4@hotel","slot5@hotel","slot6@hotel","slot7@hotel","slot8@hotel","slot1@kilo","slot2@kilo","slot3@kilo","slot4@kilo","slot5@kilo","slot6@kilo","slot7@kilo","slot8@kilo","slot1@lima","slot2@lima","slot3@lima","slot4@lima","slot5@lima","slot6@lima","slot7@lima","slot8@lima","slot1@mike","slot2@mike","slot3@mike","slot4@mike","slot5@mike","slot6@mike","slot7@mike","slot8@mike","slot1@november","slot2@november","slot3@november","slot4@november","slot5@november","slot6@november","slot7@november","slot8@november","slot1@oscar","slot2@oscar","slot3@oscar","slot4@oscar","slot5@oscar","slot6@oscar","slot7@oscar","slot8@oscar","slot1@papa","slot2@papa","slot3@papa","slot4@papa","slot5@papa","slot6@papa","slot7@papa","slot8@papa","slot1@quebec","slot2@quebec","slot3@quebec","slot4@quebec","slot5@quebec","slot6@quebec","slot7@quebec","slot8@quebec","slot1@romeo","slot2@romeo","slot3@romeo","slot4@romeo","slot5@romeo","slot6@romeo","slot7@romeo","slot8@romeo"]
+        Allocated Resources:
+        {}
+        Job Queue:
+        []
+        Pending Requests:
+        []
