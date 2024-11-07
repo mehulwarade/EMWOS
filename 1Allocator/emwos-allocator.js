@@ -1,13 +1,21 @@
 const http = require('http');
 const fs = require('fs');
 const url = require('url');
+const path = require('path');
 
 const PORT = 8000;
 const RESOURCES_FILE = 'resources.txt';
-const LOG_FILE = 'server.log';
+// Generate unique log file name with timestamp
+const LOG_FILE = `server_${new Date().toISOString().replace(/[:.]/g, '-')}.log`;
+const LOG_DIR = 'logs';
+
+// Create logs directory if it doesn't exist
+if (!fs.existsSync(LOG_DIR)) {
+    fs.mkdirSync(LOG_DIR);
+}
 
 let resources = [];
-let allocatedResources = new Map();
+let allocatedResources = new Map(); // Map<resource, {name: string, executionNumber: number}>
 let jobQueue = [];
 let pendingRequests = new Map();
 
@@ -18,13 +26,20 @@ function log(message) {
     const unixTimestamp = Math.floor(now.getTime() / 1000);
     const logMessage = `[${humanReadableTime}] [${unixTimestamp}] ${message}\n`;
     console.log(logMessage.trim());
-    fs.appendFileSync(LOG_FILE, logMessage);
+    fs.appendFileSync(path.join(LOG_DIR, LOG_FILE), logMessage);
 }
 
-// Function to get current server state with improved formatting and overall state
+// Log server start with log file information
+log(`Server starting - logging to ${LOG_FILE}`);
+
 function getServerState() {
     const availableResources = resources.filter(r => !allocatedResources.has(r));
-    const allocatedResourcesObj = Object.fromEntries(allocatedResources);
+    const allocatedResourcesObj = Object.fromEntries(
+        Array.from(allocatedResources.entries()).map(([resource, jobInfo]) => [
+            resource,
+            { job: jobInfo.name, executionNumber: jobInfo.executionNumber }
+        ])
+    );
     const pendingRequestsArray = Array.from(pendingRequests.keys());
 
     const overallState = {
@@ -48,7 +63,6 @@ function getServerState() {
         ${JSON.stringify(pendingRequestsArray)}`;
 }
 
-// Read resources from file
 function initializeResources() {
     try {
         const data = fs.readFileSync(RESOURCES_FILE, 'utf8');
@@ -60,11 +74,9 @@ function initializeResources() {
     }
 }
 
-// Function to find the job with the smallest execution number
 function NextJobToSchedule() {
     if (jobQueue.length === 0) return null;
 
-    // Find job with smallest execution number
     let smallestExecJob = jobQueue[0];
     let smallestExecIndex = 0;
 
@@ -75,19 +87,25 @@ function NextJobToSchedule() {
         }
     }
 
-    // If the job with smallest execution number is not at the front of the queue
     if (smallestExecIndex !== 0) {
         log(`Note: Job ${jobQueue[0].name} is next in queue, but scheduling ${smallestExecJob.name} first as it has lower execution number (${smallestExecJob.executionNumber} vs ${jobQueue[0].executionNumber})`);
     }
 
-    // Remove the job from the queue and return it
     jobQueue.splice(smallestExecIndex, 1);
     return smallestExecJob;
 }
 
-// Function to find an available resource based on job preference
 function NextResourceAvailable(jobPreference) {
     return resources.find(resource => !allocatedResources.has(resource));
+}
+
+function isJobAllocated(jobName, executionNumber) {
+    for (const [_, jobInfo] of allocatedResources) {
+        if (jobInfo.name === jobName && jobInfo.executionNumber === executionNumber) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function processQueue() {
@@ -105,8 +123,11 @@ function processQueue() {
             const availableResource = NextResourceAvailable(nextJob.preference);
 
             if (availableResource) {
-                allocatedResources.set(availableResource, nextJob.name);
-                const res = pendingRequests.get(nextJob.name);
+                allocatedResources.set(availableResource, {
+                    name: nextJob.name,
+                    executionNumber: nextJob.executionNumber
+                });
+                const res = pendingRequests.get(`${nextJob.name}-${nextJob.executionNumber}`);
                 if (res) {
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({
@@ -114,13 +135,12 @@ function processQueue() {
                         job: nextJob.name,
                         executionNumber: nextJob.executionNumber
                     }));
-                    pendingRequests.delete(nextJob.name);
+                    pendingRequests.delete(`${nextJob.name}-${nextJob.executionNumber}`);
                     log(`Resource ${availableResource} allocated to job ${nextJob.name} (execution number: ${nextJob.executionNumber})`);
                 }
-                processedJobs.add(nextJob.name);
+                processedJobs.add(`${nextJob.name}-${nextJob.executionNumber}`);
                 allocatedThisRound = true;
             } else {
-                // If no suitable resource, put the job back at the end of the queue
                 jobQueue.push(nextJob);
                 log(`No suitable resources available for job ${nextJob.name} (execution number: ${nextJob.executionNumber}). Moved to end of queue.`);
             }
@@ -135,12 +155,11 @@ function processQueue() {
     log(`Current server state: ${getServerState()}`);
 }
 
-// Function to release a resource
-function releaseResource(jobName) {
-    for (let [resource, job] of allocatedResources) {
-        if (job === jobName) {
+function releaseResource(jobName, executionNumber) {
+    for (let [resource, jobInfo] of allocatedResources) {
+        if (jobInfo.name === jobName && jobInfo.executionNumber === executionNumber) {
             allocatedResources.delete(resource);
-            log(`Resource ${resource} released from job ${jobName}`);
+            log(`Resource ${resource} released from job ${jobName} (execution number: ${executionNumber})`);
             processQueue();
             return resource;
         }
@@ -165,25 +184,41 @@ const server = http.createServer((req, res) => {
 
         log(`Received allocation request for job ${jobName} with execution number ${executionNumber}`);
 
-        if (Array.from(allocatedResources.values()).includes(jobName)) {
-            log(`Error: Job ${jobName} is already allocated a resource`);
+        if (isJobAllocated(jobName, executionNumber)) {
+            log(`Error: Job ${jobName} with execution number ${executionNumber} is already allocated a resource`);
             res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: `Job ${jobName} is already allocated a resource` }));
+            res.end(JSON.stringify({
+                error: `Job ${jobName} with execution number ${executionNumber} is already allocated a resource`
+            }));
         } else {
             jobQueue.push({ name: jobName, executionNumber: executionNumber });
-            pendingRequests.set(jobName, res);
+            pendingRequests.set(`${jobName}-${executionNumber}`, res);
             log(`Job ${jobName} added to queue with execution number ${executionNumber}`);
             processQueue();
         }
     } else if (path[1] === 'release' && path[2]) {
         const jobName = path[2];
-        log(`Received release request for job ${jobName}`);
-        const releasedResource = releaseResource(jobName);
+        const executionNumber = parseInt(path[3]);
+
+        if (isNaN(executionNumber)) {
+            log(`Error: Invalid execution number for release of job ${jobName}`);
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: `Invalid execution number for job ${jobName}` }));
+            return;
+        }
+
+        log(`Received release request for job ${jobName} with execution number ${executionNumber}`);
+        const releasedResource = releaseResource(jobName, executionNumber);
         if (releasedResource) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ resource: releasedResource, job: jobName, status: 'released' }));
+            res.end(JSON.stringify({
+                resource: releasedResource,
+                job: jobName,
+                executionNumber: executionNumber,
+                status: 'released'
+            }));
         } else {
-            log(`Error: Job ${jobName} not found or already released`);
+            log(`Error: Job ${jobName} with execution number ${executionNumber} not found or already released`);
             res.writeHead(404, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Job not found or already released' }));
         }
@@ -200,7 +235,6 @@ server.listen(PORT, () => {
     log(`Server running on port ${PORT}`);
 });
 
-// Error handling for uncaught exceptions
 process.on('uncaughtException', (error) => {
     log(`Uncaught Exception: ${error.message}`);
     log(error.stack);

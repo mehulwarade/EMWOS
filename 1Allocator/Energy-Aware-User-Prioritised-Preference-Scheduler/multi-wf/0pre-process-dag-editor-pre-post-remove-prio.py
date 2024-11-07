@@ -89,6 +89,8 @@ import argparse
 import csv
 from collections import defaultdict
 from pathlib import Path
+import subprocess
+import shutil
 
 def read_schedule(csv_file):
     """Read the schedule CSV file and organize job information by workflow."""
@@ -193,8 +195,13 @@ def edit_dag_file(dag_file, job_exec_numbers, remove_priority):
                             print(f"Warning: Submit file not found: {abs_submit_path}")
                     
                     outfile.write(line)
-                    outfile.write(f"SCRIPT PRE {current_job} /home/mehul/shared_fs/EMWOS/1Allocator/emwos-pre-post pre {submit_file} {exec_num}\n")
-                    outfile.write(f"SCRIPT POST {current_job} /home/mehul/shared_fs/EMWOS/1Allocator/emwos-pre-post post {submit_file} {exec_num}\n")
+                    # get the full path using OS which command for the script
+                    emwos_script = shutil.which('emwos-pre-post')
+                    if emwos_script is None:
+                        raise FileNotFoundError("emwos-pre-post script not found in PATH")
+
+                    outfile.write(f"SCRIPT PRE {current_job} {emwos_script} pre {submit_file} {exec_num}\n")
+                    outfile.write(f"SCRIPT POST {current_job} {emwos_script} post {submit_file} {exec_num}\n")
                 
                 elif line.startswith('SCRIPT POST '):
                     # Skip the old POST line
