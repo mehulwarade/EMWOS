@@ -172,10 +172,17 @@ const server = http.createServer((req, res) => {
 
         //* sub-utility to find if the job is already allocated or not.
         const isJobAllocated = (jobName, executionNumber) => {
-            for (const [_, jobInfo] of allocatedResources) {
+            for (const [_, jobInfoInAllocated] of allocatedResources) {
                 // if job is already allocated or if the same execution is already allocated then return true.
                 //! Assumptions: unique job name, unique execution number and if job rerun then release happened already.
-                if (jobInfo.name === jobName || jobInfo.executionNumber === executionNumber) {
+                if (jobInfoInAllocated.name === jobName || jobInfoInAllocated.executionNumber === executionNumber) {
+                    return true;
+                }
+            }
+            for (const jobInfoInQueue of jobQueue) {
+                // if job is in queue then return true.
+                //! Assumptions: unique job name, unique execution number and if job rerun then release happened already.
+                if (jobInfoInQueue.name === jobName || jobInfoInQueue.executionNumber === executionNumber) {
                     return true;
                 }
             }
@@ -183,11 +190,11 @@ const server = http.createServer((req, res) => {
         }
 
         if (isJobAllocated(jobName, executionNumber)) {
-            log(`Error: Job ${jobName} or execution number ${executionNumber} is already allocated a resource`);
+            log(`warning: Job ${jobName} or execution number ${executionNumber} is already allocated a resource or already queued for allocation. Do not send request again.`);
             // still do not crash. send a warning and let the pre scrip complete successfully.
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
-                warning: `Job ${jobName} or execution number ${executionNumber} is already allocated a resource`
+                warning: `Job ${ jobName } or execution number ${ executionNumber } is already allocated a resource or already queued for allocation. Do not send request again.`
             }));
         } else {
             // if job is not already allocated or execution number is unique or has been released before: add to the queue to be scheduled.
