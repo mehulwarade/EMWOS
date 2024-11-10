@@ -32,7 +32,41 @@ function log(message) {
 // Log server start with log file information
 log(`Server starting - logging to ${LOG_FILE}`);
 
-function getServerState() {
+// Util to compress the available resources list.
+const compressResources = (resources) => {
+    // Group by base name (alpha, bravo, etc.)
+    const groups = resources.reduce((acc, resource) => {
+        const [slot, group] = resource.split('@');
+        const slotNum = parseInt(slot.replace('slot', ''));
+        if (!acc[group]) acc[group] = [];
+        acc[group].push(slotNum);
+        return acc;
+    }, {});
+
+    // Convert each group's numbers into ranges
+    return Object.entries(groups).map(([group, slots]) => {
+        slots.sort((a, b) => a - b);
+        const ranges = [];
+        let start = slots[0];
+        let prev = slots[0];
+
+        for (let i = 1; i <= slots.length; i++) {
+            if (i === slots.length || slots[i] !== prev + 1) {
+                ranges.push(start === prev ? start : `${start}-${prev}`);
+                if (i < slots.length) {
+                    start = slots[i];
+                    prev = slots[i];
+                }
+            } else {
+                prev = slots[i];
+            }
+        }
+
+        return `${group}@${ranges.join(',')}`;
+    }).join(' ');
+}
+
+const getServerState = () => {
     const availableResources = resources.filter(r => !allocatedResources.has(r));
     const allocatedResourcesObj = Object.fromEntries(
         Array.from(allocatedResources.entries()).map(([resource, jobInfo]) => [
@@ -49,89 +83,65 @@ function getServerState() {
         jobsInQueue: jobQueue.length,
         pendingJobs: pendingRequests.size
     };
-
     return `
-        Overall State:
-        ${JSON.stringify(overallState)}
-        Available Resources:
-        ${JSON.stringify(availableResources)}
-        Allocated Resources:
-        ${JSON.stringify(allocatedResourcesObj)}
-        Job Queue:
-        ${JSON.stringify(jobQueue)}
-        Pending Requests:
-        ${JSON.stringify(pendingRequestsArray)}`;
+        Overall State: ${JSON.stringify(overallState)}
+        Available Resources: ${compressResources(availableResources)}
+        Allocated Resources: ${JSON.stringify(allocatedResourcesObj)}
+        Job Queue: ${JSON.stringify(jobQueue)}
+        Pending Requests: ${JSON.stringify(pendingRequestsArray)}`;
 }
 
-function NextJobToSchedule() {
-    if (jobQueue.length === 0) return null;
-
+const FindNextJobToScheduleBasedOnLowestExecutionNumber = () => {
+    if (jobQueue.length === 0) return null; // redundant as we have while loop in process queue checking the same thing. keeping for sanity.
     let smallestExecJob = jobQueue[0];
     let smallestExecIndex = 0;
-
     for (let i = 1; i < jobQueue.length; i++) {
         if (jobQueue[i].executionNumber < smallestExecJob.executionNumber) {
             smallestExecJob = jobQueue[i];
             smallestExecIndex = i;
         }
     }
-
     if (smallestExecIndex !== 0) {
-        log(`Note: Job ${jobQueue[0].name} is next in queue, but scheduling ${smallestExecJob.name} first as it has lower execution number (${smallestExecJob.executionNumber} vs ${jobQueue[0].executionNumber})`);
+        log(`Note: Job ${jobQueue[0].name} (execution number ${jobQueue[0].executionNumber}) is next in queue, but scheduling ${smallestExecJob.name} first as it has lower execution number ${smallestExecJob.executionNumber}`);
     }
-
+    // remove the job from the jobQueue
     jobQueue.splice(smallestExecIndex, 1);
     return smallestExecJob;
 }
 
-function NextResourceAvailable(jobPreference) {
+// ! just returning the NOT allocated resource. Can add logic for smartly providing the resource in future
+const FindNextResourceToScheduleTheJobOn = () => {
     return resources.find(resource => !allocatedResources.has(resource));
 }
 
-function processQueue() {
-    let processedJobs = new Set();
-    let allocatedThisRound = false;
-
+const processQueue = () => {
     while (jobQueue.length > 0) {
         const initialQueueLength = jobQueue.length;
-        allocatedThisRound = false;
-
         for (let i = 0; i < initialQueueLength; i++) {
-            const nextJob = NextJobToSchedule();
-            if (!nextJob) break;
-
-            const availableResource = NextResourceAvailable(nextJob.preference);
-
-            if (availableResource) {
-                allocatedResources.set(availableResource, {
-                    name: nextJob.name,
+            const nextJob = FindNextJobToScheduleBasedOnLowestExecutionNumber();
+            // todo: can add logic here. for example: pass the tags for the job or the name or the execution number. smartly return the resource based on some logic.
+            const resource = FindNextResourceToScheduleTheJobOn();
+            // no job in queue or no resource available, no allocation needed. break.
+            // todo: might be redundant as if there is no next job then the while loop will never be entered as this means there are no jobs in queue.
+            if (!nextJob || !resource) break; // todo: maybe put a log here.
+            //* if job and resource both are available then proceed with allocation.
+            allocatedResources.set(resource, {
+                name: nextJob.name,
+                executionNumber: nextJob.executionNumber
+            });
+            const res = pendingRequests.get(`${nextJob.name}-${nextJob.executionNumber}`);
+            if (res) {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    resource: resource,
+                    job: nextJob.name,
                     executionNumber: nextJob.executionNumber
-                });
-                const res = pendingRequests.get(`${nextJob.name}-${nextJob.executionNumber}`);
-                if (res) {
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({
-                        resource: availableResource,
-                        job: nextJob.name,
-                        executionNumber: nextJob.executionNumber
-                    }));
-                    pendingRequests.delete(`${nextJob.name}-${nextJob.executionNumber}`);
-                    log(`Resource ${availableResource} allocated to job ${nextJob.name} (execution number: ${nextJob.executionNumber})`);
-                }
-                processedJobs.add(`${nextJob.name}-${nextJob.executionNumber}`);
-                allocatedThisRound = true;
-            } else {
-                jobQueue.push(nextJob);
-                log(`No suitable resources available for job ${nextJob.name} (execution number: ${nextJob.executionNumber}). Moved to end of queue.`);
+                }));
+                pendingRequests.delete(`${nextJob.name}-${nextJob.executionNumber}`);
+                log(`Resource ${resource} allocated to job ${nextJob.name} (execution number: ${nextJob.executionNumber})`);
             }
         }
-
-        if (!allocatedThisRound) {
-            log("No more allocations possible. Ending queue processing.");
-            break;
-        }
     }
-
     log(`Current server state: ${getServerState()}`);
 }
 
@@ -186,6 +196,7 @@ const server = http.createServer((req, res) => {
                 warning: `Job ${jobName} or execution number ${executionNumber} is already allocated a resource`
             }));
         } else {
+            // if job is not already allocated or execution number is unique or has been released before: add to the queue to be scheduled.
             jobQueue.push({ name: jobName, executionNumber: executionNumber });
             pendingRequests.set(`${jobName}-${executionNumber}`, res);
             log(`Job ${jobName} added to queue with execution number ${executionNumber}`);
