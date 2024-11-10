@@ -4,8 +4,8 @@
 Basic Multi-DAG HEFT Scheduler
 
 This script implements a pure HEFT (Heterogeneous Earliest Finish Time) algorithm 
-for scheduling multiple workflows. Unlike the preference-based version, this implementation
-focuses solely on optimizing the schedule based on task dependencies and execution costs.
+for scheduling multiple workflows. This implementation focuses on the schedule based 
+on task dependencies and execution costs.
 
 Features:
 ---------
@@ -17,7 +17,7 @@ Features:
 
 Usage:
 -----
-python3 basic_heft.py --resources <resource_file> \
+python3 Md-HEFT.py --resources <resource_file> \
     -workflow <workflow_folder1> \
     -workflow <workflow_folder2> \
     --output <output_file>

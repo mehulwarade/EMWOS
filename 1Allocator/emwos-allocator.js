@@ -63,17 +63,6 @@ function getServerState() {
         ${JSON.stringify(pendingRequestsArray)}`;
 }
 
-function initializeResources() {
-    try {
-        const data = fs.readFileSync(RESOURCES_FILE, 'utf8');
-        resources = data.split('\n').filter(line => line.trim() !== '');
-        log(`Resources loaded: ${resources.join(', ')}`);
-    } catch (err) {
-        log(`Error reading resources file: ${err}`);
-        process.exit(1);
-    }
-}
-
 function NextJobToSchedule() {
     if (jobQueue.length === 0) return null;
 
@@ -97,15 +86,6 @@ function NextJobToSchedule() {
 
 function NextResourceAvailable(jobPreference) {
     return resources.find(resource => !allocatedResources.has(resource));
-}
-
-function isJobAllocated(jobName, executionNumber) {
-    for (const [_, jobInfo] of allocatedResources) {
-        if (jobInfo.name === jobName && jobInfo.executionNumber === executionNumber) {
-            return true;
-        }
-    }
-    return false;
 }
 
 function processQueue() {
@@ -171,24 +151,39 @@ const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const path = parsedUrl.pathname.split('/');
 
+    /* 
+        Request at `/allocate/${jobName}/${executionNumber}`
+        For allocate:
+    */
     if (path[1] === 'allocate' && path[2]) {
         const jobName = path[2];
         const executionNumber = parseInt(path[3]);
-
         if (isNaN(executionNumber)) {
-            log(`Error: Invalid execution number for job ${jobName}`);
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: `Invalid execution number for job ${jobName}` }));
-            return;
+            // if execution number is null/ undefined then just log the warning but still scehdule it. Don't crash or reject the request.
+            log(`Warning: Received allocation request for job ${jobName} with invalid execution number ${executionNumber}.`);
+        }
+        else {
+            log(`Received allocation request for job ${jobName} with execution number ${executionNumber}`);
         }
 
-        log(`Received allocation request for job ${jobName} with execution number ${executionNumber}`);
+        // sub-util to find if the job is already allocated or not.
+        const isJobAllocated = (jobName, executionNumber) => {
+            for (const [_, jobInfo] of allocatedResources) {
+                // if job is already allocated or if the same execution is already allocated then return true.
+                //! Assumptions: unique job name, unique execution number and if job rerun then release happened already.
+                if (jobInfo.name === jobName || jobInfo.executionNumber === executionNumber) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         if (isJobAllocated(jobName, executionNumber)) {
-            log(`Error: Job ${jobName} with execution number ${executionNumber} is already allocated a resource`);
-            res.writeHead(400, { 'Content-Type': 'application/json' });
+            log(`Error: Job ${jobName} or execution number ${executionNumber} is already allocated a resource`);
+            // still do not crash. send a warning and let the pre scrip complete successfully.
+            res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
-                error: `Job ${jobName} with execution number ${executionNumber} is already allocated a resource`
+                warning: `Job ${jobName} or execution number ${executionNumber} is already allocated a resource`
             }));
         } else {
             jobQueue.push({ name: jobName, executionNumber: executionNumber });
@@ -196,7 +191,12 @@ const server = http.createServer((req, res) => {
             log(`Job ${jobName} added to queue with execution number ${executionNumber}`);
             processQueue();
         }
-    } else if (path[1] === 'release' && path[2]) {
+    }
+    /*
+        Request at `/release/${jobName}`
+        For release:
+    */
+    else if (path[1] === 'release' && path[2]) {
         const jobName = path[2];
         const executionNumber = parseInt(path[3]);
 
@@ -228,6 +228,18 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ error: 'Not Found' }));
     }
 });
+
+function initializeResources() {
+    try {
+        const data = fs.readFileSync(RESOURCES_FILE, 'utf8');
+        resources = data.split('\n').filter(line => line.trim() !== '');
+        // log(`Resources loaded: ${resources.join(', ')}`);
+        log(`Resources loaded: ${resources.length}`);
+    } catch (err) {
+        log(`Error reading resources file: ${err}`);
+        process.exit(1);
+    }
+}
 
 initializeResources();
 
