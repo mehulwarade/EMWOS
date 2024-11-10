@@ -104,9 +104,8 @@ const FindNextJobToScheduleBasedOnLowestExecutionNumber = () => {
     if (smallestExecIndex !== 0) {
         log(`Note: Job ${jobQueue[0].name} (execution number ${jobQueue[0].executionNumber}) is next in queue, but scheduling ${smallestExecJob.name} first as it has lower execution number ${smallestExecJob.executionNumber}`);
     }
-    // remove the job from the jobQueue
-    jobQueue.splice(smallestExecIndex, 1);
-    return smallestExecJob;
+    // return the job with lease execution number and its index
+    return { nextJob: smallestExecJob, nextJobIndex: smallestExecIndex };
 }
 
 // ! just returning the NOT allocated resource. Can add logic for smartly providing the resource in future
@@ -116,14 +115,18 @@ const FindNextResourceToScheduleTheJobOn = () => {
 
 const processQueue = () => {
     while (jobQueue.length > 0) {
-        const initialQueueLength = jobQueue.length;
-        for (let i = 0; i < initialQueueLength; i++) {
-            const nextJob = FindNextJobToScheduleBasedOnLowestExecutionNumber();
+        for (let i = 0; i < jobQueue.length; i++) {
+            // get the next job to schedule and its index so that we can remove it once allocated.
+
+            const { nextJob, nextJobIndex } = FindNextJobToScheduleBasedOnLowestExecutionNumber();
             // todo: can add logic here. for example: pass the tags for the job or the name or the execution number. smartly return the resource based on some logic.
             const resource = FindNextResourceToScheduleTheJobOn();
             // no job in queue or no resource available, no allocation needed. break.
             // todo: might be redundant as if there is no next job then the while loop will never be entered as this means there are no jobs in queue.
-            if (!nextJob || !resource) break; // todo: maybe put a log here.
+            if (!nextJob || !resource) {
+                log('Warning: No next Job or No resource available. Break in processQueue.');
+                break;
+            }
             //* if job and resource both are available then proceed with allocation.
             allocatedResources.set(resource, {
                 name: nextJob.name,
@@ -139,13 +142,16 @@ const processQueue = () => {
                 }));
                 pendingRequests.delete(`${nextJob.name}-${nextJob.executionNumber}`);
                 log(`Resource ${resource} allocated to job ${nextJob.name} (execution number: ${nextJob.executionNumber})`);
+                // now remove the job from the jobQueue as we have allocated it.
+                jobQueue.splice(nextJobIndex, 1);
             }
         }
+        break;
     }
     log(`Current server state: ${getServerState()}`);
 }
 
-function releaseResource(jobName, executionNumber) {
+const releaseResource = (jobName, executionNumber) => {
     for (let [resource, jobInfo] of allocatedResources) {
         if (jobInfo.name === jobName && jobInfo.executionNumber === executionNumber) {
             allocatedResources.delete(resource);
