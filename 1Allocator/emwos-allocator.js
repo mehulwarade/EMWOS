@@ -124,7 +124,7 @@ const processQueue = () => {
             // no job in queue or no resource available, no allocation needed. break.
             // todo: might be redundant as if there is no next job then the while loop will never be entered as this means there are no jobs in queue.
             if (!nextJob || !resource) {
-                log('Warning: No next Job or No resource available. Break in processQueue.');
+                log('Warning: No next Job or No resource available. Job stored in queue and pendingRequests queue');
                 break;
             }
             //* if job and resource both are available then proceed with allocation.
@@ -179,6 +179,7 @@ const server = http.createServer((req, res) => {
                     return true;
                 }
             }
+            // todo: if we get a post request while the job is not allocated, should we remove from the queue? currently it is leaving it as it is.
             for (const jobInfoInQueue of jobQueue) {
                 // if job is in queue then return true.
                 //! Assumptions: unique job name, unique execution number and if job rerun then release happened already.
@@ -194,7 +195,7 @@ const server = http.createServer((req, res) => {
             // still do not crash. send a warning and let the pre scrip complete successfully.
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
-                warning: `Job ${ jobName } or execution number ${ executionNumber } is already allocated a resource or already queued for allocation. Do not send request again.`
+                warning: `Job ${jobName} or execution number ${executionNumber} is already allocated a resource or already queued for allocation. Do not send request again.`
             }));
         } else {
             // if job is not already allocated or execution number is unique or has been released before: add to the queue to be scheduled.
@@ -265,6 +266,10 @@ initializeResources();
 server.listen(PORT, () => {
     log(`Server running on port ${PORT}`);
 });
+
+// Important. Without this the server will send a socket hangup after 2min to requests.
+// Ref: https://stackoverflow.com/a/58372968
+server.timeout = 0;
 
 process.on('uncaughtException', (error) => {
     log(`Uncaught Exception: ${error.message}`);

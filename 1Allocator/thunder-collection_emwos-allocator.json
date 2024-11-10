@@ -1,0 +1,35 @@
+{
+    "clientName": "Thunder Client",
+    "collectionName": "emwos-allocator",
+    "collectionId": "c60a79d3-5131-4b96-8629-d44ccd672c2d",
+    "dateExported": "2024-11-10T02:55:56.936Z",
+    "version": "1.2",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "17f3614a-b92d-4088-aa12-540bc9605ee5",
+            "colId": "c60a79d3-5131-4b96-8629-d44ccd672c2d",
+            "containerId": "",
+            "name": "allocate test",
+            "url": "http://localhost:8000/allocate/job4/6",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2024-11-10T01:10:48.942Z",
+            "modified": "2024-11-10T02:55:38.447Z",
+            "headers": []
+        },
+        {
+            "_id": "12b6337c-a4d1-49e4-8b17-9b32adabdf26",
+            "colId": "c60a79d3-5131-4b96-8629-d44ccd672c2d",
+            "containerId": "",
+            "name": "release test",
+            "url": "http://localhost:8000/release/job2",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2024-11-10T02:19:28.981Z",
+            "modified": "2024-11-10T02:55:38.447Z",
+            "headers": []
+        }
+    ],
+    "ref": "brb6R9mNi6AAvOVm_jXEEIxOzyhuPvXsNeq8Y8Me5uSqyiow62W1Q2BXKfhbOz4Qi3yRnC38aPnMjIMcqFVCYA"
+}

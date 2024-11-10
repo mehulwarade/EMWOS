@@ -55,7 +55,14 @@ function sendRequest(action, jobName, executionNumber = null) {
             hostname: SERVER_HOST,
             port: SERVER_PORT,
             path: path,
-            method: 'GET'
+            method: 'GET',
+            // Set timeout to 0 to disable it
+            timeout: 0,
+            // Keep connection alive
+            agent: new http.Agent({
+                keepAlive: true,
+                timeout: 0
+            })
         };
         const startTime = process.hrtime();
         const req = http.request(options, (res) => {
@@ -75,11 +82,10 @@ function sendRequest(action, jobName, executionNumber = null) {
                 }
             });
         });
-
+        req.setTimeout(0);
         req.on('error', (error) => {
             reject(error);
         });
-
         req.end();
     });
 }
@@ -108,8 +114,8 @@ function runPegasusExitcode(submitFile) {
 }
 
 async function main() {
-    if (process.argv.length !== 5) {
-        console.error("Error: Three arguments are required.");
+    if (process.argv.length < 3) {
+        console.error("Error: Arguments are required.");
         console.error("Usage: node script.js <pre|post> <submit_file> <execution_number>");
         process.exit(1);
     }
@@ -123,13 +129,8 @@ async function main() {
         process.exit(1);
     }
 
-    if (!submitFile.endsWith('.sub')) {
+    if (submitFile && !submitFile.endsWith('.sub')) {
         console.error("Error: Second argument must be a .sub file.");
-        process.exit(1);
-    }
-
-    if (isNaN(executionNumber) || parseInt(executionNumber) <= 0) {
-        console.error("Error: Third argument must be a positive number (execution number).");
         process.exit(1);
     }
 
@@ -142,15 +143,28 @@ async function main() {
 
     try {
         if (action === 'pre') {
+            // only enforce execution number when we execute pre script
+            if (isNaN(executionNumber) || parseInt(executionNumber) <= 0) {
+                console.error("Error: Third argument must be a positive number (execution number).");
+                process.exit(1);
+            }
+
             if (shouldSkipJob(jobName)) {
                 logMessage(action, jobName, 'skip', '', 'skipped', `removing for job type at path: ${submitFile}`);
                 process.exit(0);
             }
 
             const result = await sendRequest(action, jobName, executionNumber);
-            const resource = result.resource;
-            updateSubmitFile(submitFile, resource);
-            logMessage(action, jobName, 'allocate', resource, 'successful', `updated submit file (execution ${executionNumber})`);
+            console.log(result);
+            // if we receive any warning then log it
+            if (result.warning) logMessage(action, jobName, 'allocate', null, 'warning', `${result.warning}. Update file not updated. Exiting.`);
+
+            const resource = result.resource; // check if api response has a resource.
+            if (resource) {
+                updateSubmitFile(submitFile, resource);
+                logMessage(action, jobName, 'allocate', resource, 'successful', `updated submit file (execution ${executionNumber})`);
+            }
+
         } else {
             try {
                 const exitcodeOutput = runPegasusExitcode(submitFile);
