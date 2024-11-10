@@ -12,7 +12,7 @@
  * 
  * Example:
  * ./emwos-pre-post.sh pre /path/to/job.sub 42
- * ./emwos-pre-post.sh post /path/to/job.sub 42
+ * ./emwos-pre-post.sh post /path/to/job.sub
  */
 
 const http = require('http');
