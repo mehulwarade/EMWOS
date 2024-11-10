@@ -192,11 +192,11 @@ const server = http.createServer((req, res) => {
         }
 
         if (isJobAllocated(jobName, executionNumber)) {
-            log(`warning: Job ${jobName} or execution number ${executionNumber} is already allocated a resource or already queued for allocation. Do not send request again.`);
+            log(`warning: Requested for Job ${jobName} with execution number ${executionNumber} is already allocated a resource or already queued for allocation. Do not send request again.`);
             // still do not crash. send a warning and let the pre scrip complete successfully.
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
-                warning: `Job ${jobName} or execution number ${executionNumber} is already allocated a resource or already queued for allocation. Do not send request again.`
+                warning: `Requested for Job ${jobName} with execution number ${executionNumber} is already allocated a resource or already queued for allocation. Do not send request again.`
             }));
         } else {
             // if job is not already allocated or execution number is unique or has been released before: add to the queue to be scheduled.
