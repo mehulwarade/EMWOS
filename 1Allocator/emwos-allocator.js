@@ -151,18 +151,6 @@ const processQueue = () => {
     log(`Current server state: ${getServerState()}`);
 }
 
-const releaseResource = (jobName, executionNumber) => {
-    for (let [resource, jobInfo] of allocatedResources) {
-        if (jobInfo.name === jobName && jobInfo.executionNumber === executionNumber) {
-            allocatedResources.delete(resource);
-            log(`Resource ${resource} released from job ${jobName} (execution number: ${executionNumber})`);
-            processQueue();
-            return resource;
-        }
-    }
-    return null;
-}
-
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const path = parsedUrl.pathname.split('/');
@@ -182,7 +170,7 @@ const server = http.createServer((req, res) => {
             log(`Received allocation request for job ${jobName} with execution number ${executionNumber}`);
         }
 
-        // sub-util to find if the job is already allocated or not.
+        //* sub-utility to find if the job is already allocated or not.
         const isJobAllocated = (jobName, executionNumber) => {
             for (const [_, jobInfo] of allocatedResources) {
                 // if job is already allocated or if the same execution is already allocated then return true.
@@ -211,33 +199,40 @@ const server = http.createServer((req, res) => {
     }
     /*
         Request at `/release/${jobName}`
+        No need for execution number here.
         For release:
     */
     else if (path[1] === 'release' && path[2]) {
         const jobName = path[2];
-        const executionNumber = parseInt(path[3]);
+        log(`Received release request for job ${jobName}`);
 
-        if (isNaN(executionNumber)) {
-            log(`Error: Invalid execution number for release of job ${jobName}`);
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: `Invalid execution number for job ${jobName}` }));
-            return;
+        //* sub-utility to find the resource for the job
+        const FindAndReleaseResource = (jobName) => {
+            for (let [resource, jobInfo] of allocatedResources) {
+                if (jobInfo.name === jobName) {
+                    allocatedResources.delete(resource);
+                    log(`Resource ${resource} released from job ${jobName}`);
+                    // process job queue as we have a resource available now.
+                    processQueue();
+                    return resource;
+                }
+            }
+            return null;
         }
 
-        log(`Received release request for job ${jobName} with execution number ${executionNumber}`);
-        const releasedResource = releaseResource(jobName, executionNumber);
+        const releasedResource = FindAndReleaseResource(jobName);
         if (releasedResource) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
                 resource: releasedResource,
                 job: jobName,
-                executionNumber: executionNumber,
                 status: 'released'
             }));
         } else {
-            log(`Error: Job ${jobName} with execution number ${executionNumber} not found or already released`);
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Job not found or already released' }));
+            log(`Error: Job ${jobName} not found, already released or not in allocated resources queue`);
+            // do not crash. we received a request to release a job but could not find it. No harm done. Just let the post request complete.
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ warning: 'Job not found or already released' }));
         }
     } else {
         log(`Error: Invalid endpoint requested: ${req.url}`);
