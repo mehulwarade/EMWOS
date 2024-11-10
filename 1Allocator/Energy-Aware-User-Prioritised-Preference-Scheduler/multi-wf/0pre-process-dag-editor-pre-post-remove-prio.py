@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# python3 0pre-process-dag-editor-pre-post-remove-prio.py -s mwf4 -rm-prio
 """
 DAG and Submit File Editor for EMWOS Workflow Scheduling
 
@@ -50,16 +50,17 @@ Optional:
 
 Example Schedule CSV:
 ------------------
-workflow_folder_path,job_name,execution_number
-/path/to/workflow1,job1,1
-/path/to/workflow1,job2,2
-/path/to/workflow2,job1,3
+execution_number,workflow_id,workflow_folder_path,job_name,preference,assigned_resource,estimated_start,estimated_finish,upward_rank
+1,workflow_4,/home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0086,create_dir_montage_0_local,performance,slot1@alpha,0.00,0.00,1127.64
+2,workflow_4,/home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0086,stage_in_local_local_0_7,performance,slot1@alpha,0.00,0.00,1127.64
+3,workflow_4,/home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0086,stage_in_local_local_0_1,performance,slot1@alpha,0.00,0.00,1127.64
+4,workflow_4,/home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0086,stage_in_local_local_0_4,performance,slot1@alpha,0.00,0.00,1127.64
 
 Output:
 -------
 1. Modified DAG files with added PRE/POST scripts:
    SCRIPT PRE job_name emwos-pre-post.sh pre submit_file.sub execution_number
-   SCRIPT POST job_name emwos-pre-post.sh post submit_file.sub execution_number
+   SCRIPT POST job_name emwos-pre-post.sh post submit_file.sub
 
 2. Backup files:
    - Original DAG: filename.dag.bak
@@ -201,7 +202,7 @@ def edit_dag_file(dag_file, job_exec_numbers, remove_priority):
                         raise FileNotFoundError("emwos-pre-post script not found in PATH")
 
                     outfile.write(f"SCRIPT PRE {current_job} {emwos_script} pre {submit_file} {exec_num}\n")
-                    outfile.write(f"SCRIPT POST {current_job} {emwos_script} post {submit_file} {exec_num}\n")
+                    outfile.write(f"SCRIPT POST {current_job} {emwos_script} post {submit_file}\n")
                 
                 elif line.startswith('SCRIPT POST '):
                     # Skip the old POST line
