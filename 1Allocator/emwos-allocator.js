@@ -172,18 +172,19 @@ const server = http.createServer((req, res) => {
 
         //* sub-utility to find if the job is already allocated or not.
         const isJobAllocated = (jobName, executionNumber) => {
+            // ! update 10/11/2024: cannot have unique job name checks in the both if statement below as multiple workflow can have the same job name. let's check for unique execution number.
             for (const [_, jobInfoInAllocated] of allocatedResources) {
                 // if job is already allocated or if the same execution is already allocated then return true.
-                //! Assumptions: unique job name, unique execution number and if job rerun then release happened already.
-                if (jobInfoInAllocated.name === jobName || jobInfoInAllocated.executionNumber === executionNumber) {
+                // Originally: if (jobInfoInAllocated.name === jobName || jobInfoInAllocated.executionNumber === executionNumber)
+                if (jobInfoInAllocated.executionNumber === executionNumber) {
                     return true;
                 }
             }
             // todo: if we get a post request while the job is not allocated, should we remove from the queue? currently it is leaving it as it is.
             for (const jobInfoInQueue of jobQueue) {
                 // if job is in queue then return true.
-                //! Assumptions: unique job name, unique execution number and if job rerun then release happened already.
-                if (jobInfoInQueue.name === jobName || jobInfoInQueue.executionNumber === executionNumber) {
+                // Originally: if (jobInfoInQueue.name === jobName || jobInfoInQueue.executionNumber === executionNumber)
+                if (jobInfoInQueue.executionNumber === executionNumber) {
                     return true;
                 }
             }
