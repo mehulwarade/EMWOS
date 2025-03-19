@@ -2,11 +2,11 @@ Schedule Summary:
 ----------------------------------------
 Total Jobs: 10750
 Total Dependencies: 71310
-Makespan: 6384.06 seconds
+Makespan: 6392.29 seconds
 
 Workflow Folders Processed:
-workflow_5: /home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0092
-workflow_1: /home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0088
-workflow_2: /home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0089
 workflow_3: /home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0090
 workflow_4: /home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0091
+workflow_5: /home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0092
+workflow_2: /home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0089
+workflow_1: /home/mehul/shared_fs/montage/data/mehul/pegasus/montage/run0088
