@@ -1,3 +1,6 @@
+// Started using from 25 March 2025
+
+
 const http = require('http');
 const fs = require('fs');
 const url = require('url');
@@ -108,40 +111,107 @@ const FindNextJobToScheduleBasedOnLowestExecutionNumber = () => {
     return { nextJob: smallestExecJob, nextJobIndex: smallestExecIndex };
 }
 
-// ! just returning the NOT allocated resource. Can add logic for smartly providing the resource in future
-const FindNextResourceToScheduleTheJobOn = () => {
-    return resources.find(resource => !allocatedResources.has(resource));
+// Updated to handle preference-based resource allocation
+const FindNextResourceToScheduleTheJobOn = (preference = 'performance') => {
+    // Get available resources (not allocated)
+    const availableResources = resources.filter(resource => !allocatedResources.has(resource));
+
+    if (availableResources.length === 0) {
+        return null;
+    }
+
+    // Normalize preference to lowercase for case-insensitive comparison
+    preference = preference.toLowerCase();
+
+    // Log the preference being used for allocation
+    log(`Allocating resource based on preference: ${preference}`);
+
+    switch (preference) {
+        case 'performance':
+            // For performance, use any available resource (same as before)
+            return availableResources[0];
+
+        case 'balanced':
+            // todo: can calculate this once so we don't have to calculate everytime when we get a request. like list of allowed nodes for different preferences.
+            // For balanced, use only the first half of resource types (nodes)
+            // First, identify all unique resource types (nodes)
+            const uniqueNodes = [...new Set(resources.map(r => r.split('@')[1]))];
+            const halfNodeCount = Math.ceil(uniqueNodes.length / 2);
+            const allowedNodes = uniqueNodes.slice(0, halfNodeCount);
+
+            log(`Balanced preference: Using only nodes ${allowedNodes.join(', ')}`);
+
+            // Find first available resource from the allowed nodes
+            const balancedResource = availableResources.find(r => {
+                const node = r.split('@')[1];
+                return allowedNodes.includes(node);
+            });
+
+            // If no resources available in allowed nodes, return null (wait until one becomes available)
+            if (!balancedResource) {
+                log(`No resources available for balanced preference, job will wait in queue`);
+            }
+            return balancedResource;
+
+        case 'energy':
+            // For energy, use only resources from the first node (alpha)
+            const firstNode = resources[0].split('@')[1]; // Assuming first resource is from node 'alpha'
+            log(`Energy preference: Using only node ${firstNode}`);
+
+            // Find first available resource from the first node
+            const energyResource = availableResources.find(r => r.includes(`@${firstNode}`));
+
+            // If no resources available in first node, return null (wait until one becomes available)
+            if (!energyResource) {
+                log(`No resources available for energy preference, job will wait in queue`);
+            }
+            return energyResource;
+
+        default:
+            // For unknown preferences, default to performance behavior
+            log(`Unknown preference: ${preference}, defaulting to performance mode`);
+            return availableResources[0];
+    }
 }
 
 const processQueue = () => {
     while (jobQueue.length > 0) {
         for (let i = 0; i < jobQueue.length; i++) {
             // get the next job to schedule and its index so that we can remove it once allocated.
-
             const { nextJob, nextJobIndex } = FindNextJobToScheduleBasedOnLowestExecutionNumber();
-            // todo: can add logic here. for example: pass the tags for the job or the name or the execution number. smartly return the resource based on some logic.
-            const resource = FindNextResourceToScheduleTheJobOn();
-            // no job in queue or no resource available, no allocation needed. break.
-            // todo: might be redundant as if there is no next job then the while loop will never be entered as this means there are no jobs in queue.
-            if (!nextJob || !resource) {
-                log('Warning: No next Job or No resource available. Job stored in queue and pendingRequests queue');
+
+            // No job in queue, break
+            if (!nextJob) {
+                log('Warning: No next Job found in queue. This is unexpected.');
                 break;
             }
+
+            // Use the job's preference to find appropriate resource
+            const resource = FindNextResourceToScheduleTheJobOn(nextJob.preference);
+
+            // No resource available, no allocation needed. break.
+            if (!resource) {
+                log('Warning: No resource available. Job stored in queue and pendingRequests queue');
+                break;
+            }
+
             //* if job and resource both are available then proceed with allocation.
             allocatedResources.set(resource, {
                 name: nextJob.name,
                 executionNumber: nextJob.executionNumber
             });
+
             const res = pendingRequests.get(`${nextJob.name}-${nextJob.executionNumber}`);
             if (res) {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     resource: resource,
                     job: nextJob.name,
-                    executionNumber: nextJob.executionNumber
+                    executionNumber: nextJob.executionNumber,
+                    preference: nextJob.preference
                 }));
                 pendingRequests.delete(`${nextJob.name}-${nextJob.executionNumber}`);
-                log(`Resource ${resource} allocated to job ${nextJob.name} (execution number: ${nextJob.executionNumber})`);
+                log(`Resource ${resource} allocated to job ${nextJob.name} (execution number: ${nextJob.executionNumber}, preference: ${nextJob.preference})`);
                 // now remove the job from the jobQueue as we have allocated it.
                 jobQueue.splice(nextJobIndex, 1);
             }
@@ -156,18 +226,20 @@ const server = http.createServer((req, res) => {
     const path = parsedUrl.pathname.split('/');
 
     /* 
-        Request at `/allocate/${jobName}/${executionNumber}`
+        Request at `/allocate/${jobName}/${executionNumber}/${preference}`
         For allocate:
     */
     if (path[1] === 'allocate' && path[2]) {
         const jobName = path[2];
         const executionNumber = parseInt(path[3]);
+        const preference = path[4] || 'performance'; // Default to performance if not specified
+
         if (isNaN(executionNumber)) {
-            // if execution number is null/ undefined then just log the warning but still scehdule it. Don't crash or reject the request.
+            // if execution number is null/ undefined then just log the warning but still schedule it. Don't crash or reject the request.
             log(`Warning: Received allocation request for job ${jobName} with invalid execution number ${executionNumber}.`);
         }
         else {
-            log(`Received allocation request for job ${jobName} with execution number ${executionNumber}`);
+            log(`Received allocation request for job ${jobName} with execution number ${executionNumber} and preference ${preference}`);
         }
 
         //* sub-utility to find if the job is already allocated or not.
@@ -200,9 +272,9 @@ const server = http.createServer((req, res) => {
             }));
         } else {
             // if job is not already allocated or execution number is unique or has been released before: add to the queue to be scheduled.
-            jobQueue.push({ name: jobName, executionNumber: executionNumber });
+            jobQueue.push({ name: jobName, executionNumber: executionNumber, preference: preference });
             pendingRequests.set(`${jobName}-${executionNumber}`, res);
-            log(`Job ${jobName} added to queue with execution number ${executionNumber}`);
+            log(`Job ${jobName} added to queue with execution number ${executionNumber} and preference ${preference}`);
             processQueue();
         }
     }

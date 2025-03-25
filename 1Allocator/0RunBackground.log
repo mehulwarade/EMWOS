@@ -32,3 +32,6 @@
 2024-11-10 04:16:42 - Command: ./0RunBackground.sh node emwos-allocator.js
 2024-11-10 04:39:23 - Command: ./0RunBackground.sh node emwos-allocator.js
 2024-11-10 14:33:21 - Command: ./0RunBackground.sh node emwos-allocator.js
+2025-03-24 03:47:05 - Command: ./0RunBackground.sh -c node emwos-allocator.js
+2025-03-24 10:37:02 - Command: ./0RunBackground.sh -c node emwos-allocator.js
+2025-03-24 10:37:55 - Command: ./0RunBackground.sh node emwos-allocator.js

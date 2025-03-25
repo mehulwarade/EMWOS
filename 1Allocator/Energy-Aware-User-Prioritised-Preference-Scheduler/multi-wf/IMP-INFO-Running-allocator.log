@@ -1,0 +1,13 @@
+1. first run the Md-xx files to generate the schedule
+2. then run the 0pre-process-xx script to edit the dag file and remove the priorities.
+3. 
+
+
+
+
+
+
+DO NOT REMOVE THE emwos-pre-post file from location:
+/home/mehul/shared_fs/EMWOS/1Allocator/emwos-pre-post
+
+this is hardcoded in the dag file.

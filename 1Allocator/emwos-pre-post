@@ -1,17 +1,23 @@
 #!/usr/bin/env node
-
+// Started using from 25 March 2025
 /**
  * EMWOS Pre/Post Script for Job Execution
  * 
- * This script handles the pre and post execution tasks for EMWOS jobs:
- * - PRE: Allocates resources and updates submit files
+ * This script handles the pre and post execution tasks for EMWOS workflow jobs:
+ * - PRE: Allocates resources based on execution number and preference, then updates submit files
  * - POST: Releases resources and validates job execution
  * 
+ * The script communicates with the EMWOS server to:
+ * 1. Request resource allocation with job name, execution number, and performance preference
+ * 2. Update job submit files with the allocated resource requirements
+ * 3. Release resources after job completion
+ * 4. Verify job execution using pegasus-exitcode
+ * 
  * Usage:
- * ./emwos-pre-post.sh <pre|post> <submit_file> <execution_number>
+ * ./emwos-pre-post.sh <pre|post> <submit_file> <execution_number> [preference]
  * 
  * Example:
- * ./emwos-pre-post.sh pre /path/to/job.sub 42
+ * ./emwos-pre-post.sh pre /path/to/job.sub 42 performance
  * ./emwos-pre-post.sh post /path/to/job.sub
  */
 
@@ -24,6 +30,8 @@ const { execSync } = require('child_process');
 const SERVER_HOST = 'localhost';
 const SERVER_PORT = 8000;
 const LOG_FILE = 'emwos-pre-post.log';
+
+const DEFAULT_PREFERENCE = 'balanced';
 
 // Function to log messages
 function logMessage(action, jobName, operation, resource, status, additionalInfo = '') {
@@ -45,10 +53,10 @@ function updateSubmitFile(submitFile, resource) {
 }
 
 // Function to send request to server
-function sendRequest(action, jobName, executionNumber = null) {
+function sendRequest(action, jobName, executionNumber = null, preference = null) {
     return new Promise((resolve, reject) => {
         const path = action === 'pre'
-            ? `/allocate/${jobName}/${executionNumber}`
+            ? `/allocate/${jobName}/${executionNumber}/${preference}`
             : `/release/${jobName}`;
 
         const options = {
@@ -116,20 +124,30 @@ function runPegasusExitcode(submitFile) {
 async function main() {
     if (process.argv.length < 3) {
         console.error("Error: Arguments are required.");
-        console.error("Usage: node script.js <pre|post> <submit_file> <execution_number>");
+        console.error("Usage: node script.js <pre|post> <submit_file> <execution_number> [preference]");
         process.exit(1);
     }
 
     const action = process.argv[2];
     const submitFile = process.argv[3];
     const executionNumber = process.argv[4];
+    // Handle missing or empty preference
+    let preference = process.argv[5];
+    if (!preference || preference.trim() === '') {
+        preference = DEFAULT_PREFERENCE;
+    }
 
     if (action !== 'pre' && action !== 'post') {
         console.error("Error: First argument must be 'pre' or 'post'.");
         process.exit(1);
     }
 
-    if (submitFile && !submitFile.endsWith('.sub')) {
+    if (!submitFile) {
+        console.error("Error: Submit file path is required.");
+        process.exit(1);
+    }
+
+    if (!submitFile.endsWith('.sub')) {
         console.error("Error: Second argument must be a .sub file.");
         process.exit(1);
     }
@@ -144,17 +162,27 @@ async function main() {
     try {
         if (action === 'pre') {
             // only enforce execution number when we execute pre script
-            if (isNaN(executionNumber) || parseInt(executionNumber) <= 0) {
-                console.error("Error: Third argument must be a positive number (execution number).");
+            if (!executionNumber) {
+                console.error("Error: Execution number is required for 'pre' action.");
+                logMessage(action, jobName, 'error', '', 'failed', `Missing required execution number`);
                 process.exit(1);
             }
 
+            if (isNaN(executionNumber) || parseInt(executionNumber) <= 0) {
+                console.error("Error: Third argument must be a positive number (execution number).");
+                logMessage(action, jobName, 'error', '', 'failed', `Invalid execution number: ${executionNumber}`);
+                process.exit(1);
+            }
+
+            // Log preference information
+            logMessage(action, jobName, 'info', '', 'info', `Using preference: ${preference}`);
+
             if (shouldSkipJob(jobName)) {
-                logMessage(action, jobName, 'skip', '', 'skipped', `removing for job type at path: ${submitFile}`);
+                logMessage(action, jobName, 'skip', '', 'skipped', `skipping for job type at path: ${submitFile}`);
                 process.exit(0);
             }
 
-            const result = await sendRequest(action, jobName, executionNumber);
+            const result = await sendRequest(action, jobName, executionNumber, preference);
             console.log(result);
             // if we receive any warning then log it
             if (result.warning) logMessage(action, jobName, 'allocate', null, 'warning', `${result.warning}. Update file not updated. Exiting.`);
@@ -162,10 +190,11 @@ async function main() {
             const resource = result.resource; // check if api response has a resource.
             if (resource) {
                 updateSubmitFile(submitFile, resource);
-                logMessage(action, jobName, 'allocate', resource, 'successful', `updated submit file (execution ${executionNumber})`);
+                logMessage(action, jobName, 'allocate', resource, 'successful',
+                    `updated submit file (execution ${executionNumber}, preference ${preference})`);
             }
 
-        } else {
+        } else { // POST action
             try {
                 const exitcodeOutput = runPegasusExitcode(submitFile);
                 logMessage(action, jobName, 'pegasus-exitcode', '', 'successful', exitcodeOutput);
@@ -178,7 +207,7 @@ async function main() {
                 process.exit(0);
             }
             await sendRequest(action, jobName);
-            logMessage(action, jobName, 'release', '', 'successful', `completed execution ${executionNumber}`);
+            logMessage(action, jobName, 'release', '', 'successful', `completed execution for job ${jobName}`);
         }
     } catch (error) {
         logMessage(action, jobName, action === 'pre' ? 'allocate' : 'release', '', 'failed', error.message);

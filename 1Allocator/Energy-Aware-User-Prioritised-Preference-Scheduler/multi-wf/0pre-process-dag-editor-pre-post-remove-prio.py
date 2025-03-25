@@ -4,7 +4,7 @@
 DAG and Submit File Editor for EMWOS Workflow Scheduling
 
 This script processes workflow DAG files based on a scheduling CSV file to:
-1. Add PRE/POST script commands with execution numbers for each job
+1. Add PRE/POST script commands with execution numbers and preference for each job
 2. Optionally remove priority settings from both DAG and submit files
 3. Create backups of all modified files
 
@@ -14,17 +14,14 @@ Input Requirements:
    - workflow_folder_path: Absolute path to the workflow folder
    - job_name: Name of the job
    - execution_number: Scheduling order number
+   - preference: Performance preference for the job (optional)
    - [other columns are ignored]
-
-2. Workflow folders containing:
-   - A single .dag file in the root
-   - Submit (.sub) files referenced in the DAG
 
 Operations Performed:
 ------------------
 1. For each workflow in the schedule:
    - Locates the DAG file in the workflow folder
-   - Adds PRE/POST script lines with execution numbers
+   - Adds PRE/POST script lines with execution numbers and preference (if available)
    - Removes PRIORITY lines if -rm-prio flag is used
    - Creates backup as .dag.bak
 
@@ -59,7 +56,7 @@ execution_number,workflow_id,workflow_folder_path,job_name,preference,assigned_r
 Output:
 -------
 1. Modified DAG files with added PRE/POST scripts:
-   SCRIPT PRE job_name emwos-pre-post.sh pre submit_file.sub execution_number
+   SCRIPT PRE job_name emwos-pre-post.sh pre submit_file.sub execution_number preference
    SCRIPT POST job_name emwos-pre-post.sh post submit_file.sub
 
 2. Backup files:
@@ -99,16 +96,39 @@ def read_schedule(csv_file):
     try:
         with open(csv_file, 'r') as f:
             reader = csv.DictReader(f)
+            header = reader.fieldnames
+            
+            # Check if preference column exists
+            has_preference = 'preference' in header
+            
             for row in reader:
+                # Check for required columns
+                if 'workflow_folder_path' not in row or 'job_name' not in row or 'execution_number' not in row:
+                    missing = []
+                    for col in ['workflow_folder_path', 'job_name', 'execution_number']:
+                        if col not in row:
+                            missing.append(col)
+                    raise KeyError(f"Required column(s) {', '.join(missing)} not found in CSV file.")
+                
                 workflow_folder = row['workflow_folder_path']
                 job_name = row['job_name']
                 exec_num = row['execution_number']
-                workflow_jobs[workflow_folder][job_name] = exec_num
+                # Get preference if column exists, otherwise set to None
+                preference = row.get('preference') if has_preference else None
+                
+                workflow_jobs[workflow_folder][job_name] = {
+                    'exec_num': exec_num,
+                    'preference': preference
+                }
+            
+            if not has_preference:
+                print("Warning: 'preference' column not found in CSV. Will not include preference in scripts.")
+                
     except FileNotFoundError:
         print(f"Error: Schedule file '{csv_file}' not found.")
         sys.exit(1)
     except KeyError as e:
-        print(f"Error: Required column {e} not found in CSV file.")
+        print(f"Error: {e}")
         sys.exit(1)
     return workflow_jobs
 
@@ -154,8 +174,8 @@ def get_absolute_submit_path(dag_dir, submit_file):
         return submit_file
     return os.path.abspath(os.path.join(dag_dir, submit_file))
 
-def edit_dag_file(dag_file, job_exec_numbers, remove_priority):
-    """Edit the DAG file to add PRE/POST scripts with execution numbers."""
+def edit_dag_file(dag_file, job_info, remove_priority):
+    """Edit the DAG file to add PRE/POST scripts with execution numbers and preference."""
     backup_file = f"{dag_file}.bak"
     dag_dir = os.path.dirname(dag_file)
     submit_files_processed = set()
@@ -182,7 +202,10 @@ def edit_dag_file(dag_file, job_exec_numbers, remove_priority):
                         
                     current_job = parts[1]
                     submit_file = parts[2]
-                    exec_num = job_exec_numbers.get(current_job, "UNKNOWN")
+                    
+                    job_data = job_info.get(current_job, {"exec_num": "UNKNOWN", "preference": None})
+                    exec_num = job_data['exec_num']
+                    preference = job_data['preference']
                     
                     # Get absolute path of submit file
                     abs_submit_path = get_absolute_submit_path(dag_dir, submit_file)
@@ -201,7 +224,13 @@ def edit_dag_file(dag_file, job_exec_numbers, remove_priority):
                     if emwos_script is None:
                         raise FileNotFoundError("emwos-pre-post script not found in PATH")
 
-                    outfile.write(f"SCRIPT PRE {current_job} {emwos_script} pre {submit_file} {exec_num}\n")
+                    # Construct PRE script line based on whether preference is available
+                    if preference is not None:
+                        pre_script = f"SCRIPT PRE {current_job} {emwos_script} pre {submit_file} {exec_num} {preference}\n"
+                    else:
+                        pre_script = f"SCRIPT PRE {current_job} {emwos_script} pre {submit_file} {exec_num}\n"
+                        
+                    outfile.write(pre_script)
                     outfile.write(f"SCRIPT POST {current_job} {emwos_script} post {submit_file}\n")
                 
                 elif line.startswith('SCRIPT POST '):
@@ -239,7 +268,7 @@ def process_workflows(schedule_file, remove_priority):
     total_submit_files = 0
     
     # Process each workflow
-    for workflow_folder, job_exec_numbers in workflow_jobs.items():
+    for workflow_folder, job_info in workflow_jobs.items():
         print(f"\nProcessing workflow: {workflow_folder}")
         
         # Find DAG file
@@ -250,7 +279,7 @@ def process_workflows(schedule_file, remove_priority):
             continue
             
         # Edit the DAG file
-        if edit_dag_file(dag_file, job_exec_numbers, remove_priority):
+        if edit_dag_file(dag_file, job_info, remove_priority):
             successful += 1
         else:
             failed += 1
@@ -259,7 +288,7 @@ def process_workflows(schedule_file, remove_priority):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Edit DAG files and submit files based on schedule to add PRE-POST scripts with execution numbers"
+        description="Edit DAG files and submit files based on schedule to add PRE-POST scripts with execution numbers and preference"
     )
     parser.add_argument(
         '-s', '--schedule',
