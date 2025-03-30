@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 # this uses all resources for performance, 8 nodes for balances and 1 node for energy
+# ! the above is only to generate schedule. schedule will be generated based on the allocation but this does not matter as the end real allocation is handled by emwos-allocator.
+# ! this script is almost same as Md-Mp-HEFT.py as it generates the same schedule with execution-number and preference. the allocated resource is different in this but doesn't matter as emwos-allocator takes care of the allocation.
 
 """
 Multi-DAG Multi-Preference HEFT Scheduler for EMWOS Workflow Management System

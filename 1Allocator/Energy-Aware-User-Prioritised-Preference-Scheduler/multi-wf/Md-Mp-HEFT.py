@@ -347,9 +347,10 @@ class DAGScheduler:
             job.estimated_start = earliest_time
             job.estimated_finish = earliest_time + job_info['exec_time']
             job.assigned_resource = best_resource
-            
+            print(self.execution_counter)
             resource_available_time[best_resource] = job.estimated_finish
             self.execution_counter += 1
+
     def write_schedule(self, output_file: str):
         """Write the schedule to a CSV file."""
         fieldnames = [

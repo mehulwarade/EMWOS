@@ -27,3 +27,5 @@
 2025-03-24 03:48:01 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f run98.csv
 2025-03-24 10:36:36 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f mwf5.csv
 2025-03-25 04:31:29 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f mwf6.csv
+2025-03-29 13:41:32 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f mwf7.csv
+2025-03-30 02:02:54 - Command: ./0RunBackground.sh ./2monitoring -e -i 1000 -f mwf8.csv

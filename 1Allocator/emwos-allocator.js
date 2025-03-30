@@ -119,6 +119,8 @@ const FindNextResourceToScheduleTheJobOn = (preference = 'performance') => {
     if (availableResources.length === 0) {
         return null;
     }
+    // ! returning the first availableResource. this is used when we want to use all the nodes for all execution. Comment the collowing line if you want to apply the rules: all ndoes for performance preference, half for balanced and 1 node for energy.
+    // return availableResources[0];
 
     // Normalize preference to lowercase for case-insensitive comparison
     preference = preference.toLowerCase();
